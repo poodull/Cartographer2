@@ -15,18 +15,21 @@
     <script src="js/libraries/TweenLite.js"></script>
     <script src="js/index.js"></script>
     <script src="js/configloader.js"></script>
+    <script src="js/toolTips.js"></script>
     <script src="js/floorData.js"></script>
+    <script src="js/drawWalls.js"></script>
+    <script src="js/mouseEvents.js"></script>
 </head>
 <body>
 
 <div class = "subToolbar">
     <div class = "file subMenu">
         <input type="file" id="loadConfig" name="cmdLoadConfig" hidden multiple />
-        <a class = "newFile" id="newFile">New</a>
+        <a class = "subMenuButton newFile" id="newFile"> </a>
         <div class = "tooltip newTooltip">
             <p class = "tooltipHeader">Create New Floor Map</p>
         </div>
-        <a class = "importFile"id="importFile">Import</a>
+        <a class = "subMenuButton importFile"id="importFile"></a>
         <div class = "tooltip importTooltip">
             <p class = "tooltipHeader">Import Existing Floor Map</p>
             <p class = "tooltipContent">Import and continue an existing .plan file.</p>
@@ -44,17 +47,17 @@
     </div>
     <div class = "floorImage subMenu" hidden>
         <input type="file" id="loadFloorImage" name="cmdImportImage" hidden multiple/>
-        <a class = "importFloorImage" id="importFloorImage">Import</a>
+        <a class = "subMenuButton importFloorImage" id="importFloorImage"></a>
         <div class = "tooltip importTooltip">
             <p class = "tooltipHeader">Import Floor Image</p>
             <p class = "tooltipContent"></p>
         </div>
-        <a class = "originFloorImage">Origin</a>
+        <a class = "originFloorImage" id = "originFloorImage">Origin</a>
         <div class = "tooltip originTooltip">
             <p class = "tooltipHeader">Set Floor Origin</p>
             <p class = "tooltipContent">Set a point on a Floor Map.</p>
         </div>
-        <a class = "scaleFloorImage">Scale</a>
+        <a class = "scaleFloorImage" id = "scaleFloorImage">Scale</a>
         <div class = "tooltip scaleTooltip">
             <p class = "tooltipHeader">Set Floor Map Scale</p>
             <p class = "tooltipContent">Assign a scale to the floor map to calibrate walls and device locations.</p>
@@ -80,12 +83,12 @@
         </div>
     </div>
     <div class = "walls subMenu" hidden>
-        <a class = "penWalls">Pen</a>
+        <a class = "subMenuButton penWalls"></a>
         <div class = "tooltip penTooltip">
-            <p class = "tooltipHeader">Create Walls/p>
+            <p class = "tooltipHeader">Create Walls</p>
             <p class = "tooltipContent">Create walls on a Floor Map for visual cues and attenuation mapping.</p>
         </div>
-        <a class = "cutWalls">Cut</a>
+        <a class = "subMenuButton cutWalls"></a>
         <div class = "tooltip cutTooltip">
             <p class = "tooltipHeader">Cut</p>
             <p class = "tooltipContent">Use the Cut tool to subdivide large walls where doorways or windows are.
@@ -99,7 +102,7 @@
         </div>
     </div>
     <div class = "device subMenu" hidden>
-        <a class = "addDevice">Add</a>
+        <a class = "subMenuButton addDevice"></a>
         <div class = "tooltip addDeviceTooltip">
             <p class = "tooltipHeader">Add Device</p>
             <p class = "tooltipContent">Create walls on a Floor Map for visual cues and attenuation mapping.</p>
@@ -209,6 +212,15 @@
             </td>
         </tr>
     </table>
+</div>
+<div class="panel panel-primary draggable-panel toolbar-panel ui-draggable ui-resizable originFloorImage-dialog toolbox-tools" hidden>
+    <div class="panel-heading lang-panel-header-tools"> Info <i class="fa fa-times pull-right close-panel close-toolbox-tools"></i></div>
+<span class = "off-center-tooltip-content"> Select the point on the map to identify as the origin. A useful origin can be used to line up multiple floors, such as
+an elevator shaft, stairwell, or cornerstone. </span>
+</div>
+<div class="panel panel-primary draggable-panel toolbar-panel ui-draggable ui-resizable scaleFloorImage-dialog toolbox-tools" hidden>
+    <div class="panel-heading lang-panel-header-tools"> Info <i class="fa fa-times pull-right close-panel close-toolbox-tools"></i></div>
+<span class = "off-center-tooltip-content"> Select two points on the map to define the distance to scale. Use known points such as doorways or other standard widths for ease. </span>
 </div>
 
 </body>
