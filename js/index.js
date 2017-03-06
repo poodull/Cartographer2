@@ -4,6 +4,7 @@ $(document).ready(function () {
     init();
     showSubtoolBar();
     setTooltip();
+    setOffSetTooltip();
     bindListeners();
     var config = null;
     if (typeof localStorage !== "undefined")
@@ -86,30 +87,7 @@ $('a.myButton').click(function() {
 });
 }
 
-function setTooltip() {
-    $.widget("ui.tooltip", $.ui.tooltip, {
-        options: {
-            content: function () {
-                return $(this).prop('title');
-            }
-        }
-    });
-    $(function () {
-        $('a').attr('title', function(){
-            return $(this).next('.tooltip').remove().html()
-        });
-        $(document).tooltip({
-            tooltipClass: "tooltipStyle"
-        });
-    });
-}
-
 function bindListeners () {
-    var items = {
-        "RECEIVER": "ATOM10,ATOM27,ATOM50",
-        "SENSOR": "AEON,WASP"
-    };
-
     $('#importFile').click( function () {
         $('#loadConfig').trigger('click');
     });
@@ -122,6 +100,21 @@ function bindListeners () {
     $('#importFloorImage').click( function () {
         $('#loadFloorImage').trigger('click');
     });
+    $('#originFloorImage').click( function () {
+        $('.toolbox-tools').attr('hidden', true);
+        $('.originFloorImage-dialog')[0].removeAttribute('hidden');
+    });
+    $('#scaleFloorImage').click( function () {
+        $('.toolbox-tools').attr('hidden', true);
+        $('.scaleFloorImage-dialog')[0].removeAttribute('hidden');
+    });
+    $('.close-toolbox-tools').click( function () {
+        $('.toolbox-tools').attr('hidden', true);
+    });
+    $('#penWalls').click( function () {
+        controls.mouseButtons.ORBIT = -1;
+        _drawMode.mode = ControlModes.DrawPoly;
+    });
     $('#loadConfig').change( function () {
         var file = $('#loadConfig').get(0).files[0];
         if (file) {
@@ -129,6 +122,9 @@ function bindListeners () {
             $('#loadConfig').val("");
             changes = 1;
         }
+    });
+    $('#deviceType').change( function () {
+        setDropDown();
     });
     $('#loadFloorImage').change( function () {
         var file = $('#loadFloorImage').get(0).files[0];
@@ -154,7 +150,12 @@ function bindListeners () {
         $('#deviceMenu')[0].removeAttribute('hidden');
     });
     $('.addDevice').click(function () {
-        $('#addDeviceMenu')[0].removeAttribute('hidden');
+        controls.mouseButtons.ORBIT = -1;
+        container.style.cursor = "crosshair";
+        _drawMode.mode = ControlModes.PlaceDevice;
+    });
+    container.addEventListener('mousedown', function () {
+        onMouseDown(event);
     });
 
     if ($('#confirmNew').length) {

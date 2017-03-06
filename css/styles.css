@@ -6,6 +6,46 @@
     background-color: aliceblue;
 }
 
+.subToolbar {
+    height: 50px;
+}
+
+.subMenuButton {
+    background-size: 30px 30px;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 2.5em;
+    height: 2.5em;
+    border-radius: 6px;
+    background-color: #3e3e42;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.newFile {
+    background-image: url("../images/new.PNG");
+}
+
+.importFile {
+    background-image: url("../images/importConfig.PNG");
+}
+
+.importFloorImage {
+    background-image: url("../images/importImage.PNG");
+}
+
+.pewnWalls {
+    background-image: url("../images/pen.PNG");
+}
+
+.cutWalls {
+    background-image: url("../images/cut.PNG");
+}
+
+.addDevice {
+    background-image: url("../images/add.PNG");
+}
+
 .ui-icon {
     height:40px;
     width: 39px;
@@ -14,7 +54,6 @@
 
 .fa {
     width: 39px;
-    //display: block !important;
 }
 
 canvas {
@@ -48,7 +87,7 @@ canvas {
 }
 
 .deviceMenu,
-.addDeviceMenu {
+.addDeviceMenu{
     position: absolute;
     color: white;
     border: 1px solid #d9edf7;
@@ -76,4 +115,21 @@ canvas {
 .originSubMenu,
 .scaleSubMenu {
     display: inline;
+}
+
+.toolbox-tools {
+    float: right;
+    color: white;
+    border: 1px solid #d9edf7;
+    width: 300px;
+    height: 160px;
+    overflow: hidden;
+}
+
+.panel-heading {
+    cursor: move;
+}
+
+.close-toolbox-tools {
+    cursor: pointer;
 }
