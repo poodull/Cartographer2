@@ -298,7 +298,7 @@ function saveConfig(newConfigFlag) {
             floor.areas = entry.savedAreas; // Floor's poly list from the config were never loaded because the floor was not ever selected.
             // So, preserve the poly config for this unselected floor and save it back to the new config file.
         }
-        chnages = 1;
+        changes = 1;
         floors.push(floor);
     });
 

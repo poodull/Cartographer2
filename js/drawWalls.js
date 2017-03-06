@@ -10,6 +10,7 @@ var ControlModes = {
     SetOrigin: 'setOrigin',
     DeviceManager: 'deviceManager',
     PlaceDevice: 'placeDevice',
+    AddDevice: 'addDevice',
     EditDevice: 'editDevice',
     DrawPoly: 'drawPoly',
     Select: 'select'

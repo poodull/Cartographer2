@@ -1,12 +1,19 @@
 /**
  * Created by Vamsi on 3/3/2017.
  */
-function onMouseDown (event) {
-    event.preventDefault();
+function onMouseDown (e) {
+    e.preventDefault();
 
     switch (_drawMode.mode) {
         case ControlModes.PlaceDevice:
-            $('#addDeviceMenu')[0].removeAttribute('hidden');
+            break;
+        case ControlModes.AddDevice:
+            $('#addDeviceMenu').dialog('open');
+            var $div = $(e.target);
+            var offset = $div.offset();
+            var x = e.clientX - offset.left;
+            var y = e.clientY - offset.top;
+            addDevice(x, y);
             break;
     }
 }

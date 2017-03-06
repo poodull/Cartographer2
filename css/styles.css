@@ -86,17 +86,14 @@ canvas {
     font-family: Calibri;
 }
 
-.deviceMenu,
-.addDeviceMenu{
+.deviceMenu{
     position: absolute;
     color: white;
     border: 1px solid #d9edf7;
 }
 
 .addDeviceMenu {
-    width: 400px;
-    left: 500px;
-    top: 200px;
+    position: initial;
 }
 
 .deviceMenu {
@@ -119,15 +116,25 @@ canvas {
 
 .toolbox-tools {
     float: right;
-    color: white;
+    color: #060e46;
     border: 1px solid #d9edf7;
     width: 300px;
-    height: 160px;
     overflow: hidden;
+    border-radius: 2px;
+    background-color: #f2f3f0;
+    text-align: center;
+    height: 120px;
+    font-size: 16px;
+    font-family: calibri;
+    font-weight: 500;
+    position: fixed;
+    bottom: 80px;
+    right: 41px;
 }
 
 .panel-heading {
     cursor: move;
+    padding-bottom: 5px;
 }
 
 .close-toolbox-tools {

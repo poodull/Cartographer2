@@ -6,6 +6,7 @@ $(document).ready(function () {
     setTooltip();
     setOffSetTooltip();
     bindListeners();
+    addDevice();
     var config = null;
     if (typeof localStorage !== "undefined")
         config = localStorage.getItem("config");
@@ -152,7 +153,7 @@ function bindListeners () {
     $('.addDevice').click(function () {
         controls.mouseButtons.ORBIT = -1;
         container.style.cursor = "crosshair";
-        _drawMode.mode = ControlModes.PlaceDevice;
+        _drawMode.mode = ControlModes.AddDevice;
     });
     container.addEventListener('mousedown', function () {
         onMouseDown(event);
