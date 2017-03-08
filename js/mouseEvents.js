@@ -15,5 +15,9 @@ function onMouseDown (e) {
             var y = e.clientY - offset.top;
             addDevice(x, y);
             break;
+        case ControlModes.EditDevice:
+            $("#editDeviceMenu").dialog('open');
+            editDevice();
+            break;
     }
 }

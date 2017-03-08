@@ -1,0 +1,84 @@
+{
+  "unit": "meters", // Default units of measure [meters,feet,geo]
+  "floors": {
+    "id": 0, //Floor UID
+    "imageURL": "data:image/png;base64,", // bitmap of floor image, non nullable (will be 1024x1024 grid img if no image provided by user)
+    "name": "1st Floor", // name of floor
+    "building_name": "", // name of building (DENORMALIZED -- Should be Building ID, really) (RESERVED FOR FUTURE USE)
+    "scale": 10.5, // number of units per pixel: 10.5 = 10.5 units (feet or meters) per pixel
+    "north": 89.3, // Degrees of image rotation for north
+    "originXPx": 0, //the origin of X:0 on the image in pixels
+    "originYPx": 1024, // The origin of Y:0 on the image in pixels
+    "originLat": 34.3983939, // Real world Latitude of Origin point
+    "originLong": -60.82838, // Real world Longitude of Origin point
+    "altitude": 2.5, // Altitude of the floor in units
+    "imageWidthPx": 1024, // Width of image in pixels
+    "imageHeightPx": 1024, // Height of image in pixels
+    "walls": [
+      {
+        "points": [ // Points in a vector that define walls.  Values are units, not pixels.
+          {
+            "x": 432.5,
+            "y": 382.5,
+            "z": 2.5
+          },
+          {
+            "x": 632.5,
+            "y": 387.5,
+            "z": 2.5
+          }
+        ],
+        "attn": 1, // Attenuation enum for this wall
+        "attnval": 0 // Attenuation value for this wall
+      },
+      {
+        "points": [
+          {
+            "x": 572.5,
+            "y": 572.5,
+            "z": 2.5
+          },
+          {
+            "x": 222.5,
+            "y": 562.5,
+            "z": 2.5
+          }
+        ],
+        "attn": 2, // Attenuation enum for this wall
+        "attnval": 0 // Attenuation value for this wall
+      }
+    ],
+    "devices": [ // Device list. (SHOULD BE PUT WITHIN FLOOR ENTITY LIKE AREA)
+      {
+        "id": 101, // Device UID
+        "name": "Atom10", // Friendly name for device
+        "model": 110, // DeviceModelId
+        "deviceType": 5, // DeviceTypeId
+        "x": 511.24, // Device X location in units from origin
+        "y": 511.59, // Device Y location in units from origin
+        "z": 4, // Device Altitude in units
+        "floorID": 0, // FloorID this device is associated with
+        "parentDevice": -1, // Connected Device's ID
+        "parentport": -1, // Connected Device's parent's port
+        "ipAddress": "10.0.0.1", // Device's IP Address
+        "deviceUuid": "0000-0000-0000-0000-0000", //device's uuid
+        "mac": "FF:FF:FF:FF:FF" //device's mac address
+      },
+      {
+        "id": 102, // Device UID
+        "name": "Sensor1", // Friendly name for device
+        "model": 200, // DeviceModelId
+        "deviceType": 4, // DeviceTypeId
+        "x": 512.53, // Device X location in units from origin
+        "y": 501.19, // Device Y location in units from origin
+        "z": 4, // Device Altitude in units
+        "floorID": 0, // FloorID this device is associated with
+        "parentDevice": 101, // Connected Device's ID
+        "parentport": 1, // Connected Device's parent's port
+        "ipAddress": "", // Device's IP Address
+        "deviceUuid": "0000-0000-0000-0000-0000", //device's uuid
+        "mac": "FF:FF:FF:FF:FF" //device's mac address
+      }
+    ]
+  }
+}

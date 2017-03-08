@@ -2,8 +2,8 @@
  * Created by Vamsi on 3/3/2017.
  */
 var items = {
-    "RECEIVER": "ATOM10,ATOM27,ATOM50",
-    "SENSOR": "AEON,WASP"
+    5: "ATOM10,ATOM27,ATOM50",
+    8: "AEON,WASP"
 };
 
 function setDropDown() {
@@ -14,10 +14,10 @@ function setDropDown() {
         var vals = [];
         if (item === key) {
             switch(key) {
-                case 'RECEIVER':
+                case "5":
                     vals = value.split(",");
                     break;
-                case 'SENSOR':
+                case "8":
                     vals = value.split(",");
                     break;
                 case 'base':

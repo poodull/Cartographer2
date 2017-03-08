@@ -7,6 +7,7 @@ $(document).ready(function () {
     setOffSetTooltip();
     bindListeners();
     addDevice();
+    editDevice();
     var config = null;
     if (typeof localStorage !== "undefined")
         config = localStorage.getItem("config");
@@ -149,11 +150,16 @@ function bindListeners () {
 
     $('.device').click(function () {
         $('#deviceMenu')[0].removeAttribute('hidden');
+        refreshDevices(); //TODO: change this function to load the device list from config in local storage
     });
     $('.addDevice').click(function () {
         controls.mouseButtons.ORBIT = -1;
         container.style.cursor = "crosshair";
         _drawMode.mode = ControlModes.AddDevice;
+    });
+    $('.editDevice').click(function () {
+        controls.mouseButtons.ORBIT = -1;
+        _drawMode.mode = ControlModes.EditDevice;
     });
     container.addEventListener('mousedown', function () {
         onMouseDown(event);
@@ -212,4 +218,11 @@ function drawAxesHelper(length, altitude) {
     scene.axes.name = "axes_z" + altitude;
     scene.axes.position.z = altitude;
     scene.add(scene.axes);
+}
+
+function createElement (tag, id, css) {
+        var element = document.createElement(tag);
+        element.id = id;
+        element.style.cssText = css;
+        return element;
 }

@@ -8,8 +8,12 @@ function loadDefaultFloor() {
     var domURL = window.URL || window.webkitURL || window;
 
     async.waterfall([
-        function (callback1) { getMeta(_defaultFloor, domURL, callback1); },
-        function (url, floorData, width, height, callback2) { loadFloor(url, floorData, width, height, callback2); }
+        function (callback1) {
+            getMeta(_defaultFloor, domURL, callback1);
+        },
+        function (url, floorData, width, height, callback2) {
+            loadFloor(url, floorData, width, height, callback2);
+        }
     ], function () {    // Called after the last function in the waterfall calls its callback (callback2).
         if (_floors.floorData.length > 0) {
             _floors.selectFloor(0);
@@ -31,7 +35,9 @@ function getMeta(floorData, domURL, callback) {
     img.src = url;
 
     // First parameter of callback is null for async.waterfall. Use a non-null value to pass and error report to async.waterfall.
-    img.onload = function () { callback(null, url, floorData, this.naturalWidth, this.naturalHeight) };
+    img.onload = function () {
+        callback(null, url, floorData, this.naturalWidth, this.naturalHeight)
+    };
 }
 
 function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
@@ -65,9 +71,9 @@ function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
         var centerXu = imageWidth / 2;
         var centerYu = imageHeight / 2;
 
-        floorMesh.position.x = floorData.building_offset_x + centerXu - originXPx;
-        floorMesh.position.y = floorData.building_offset_y - centerYu + originYPx;
-        floorMesh.position.z = floorData.building_offset_z + floorData.altitude;
+        floorMesh.position.x = (floorData.building_offset_x || 0) + centerXu - originXPx;
+        floorMesh.position.y = (floorData.building_offset_y || 0) - centerYu + originYPx;
+        floorMesh.position.z = (floorData.building_offset_z || 0) + floorData.altitude;
 
         var floor = {
             mesh: floorMesh,
@@ -79,9 +85,9 @@ function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
             originXPx: originXPx,
             originYPx: originYPx,
             altitude: floorData.altitude,
-            building_offset_x: floorData.building_offset_x,
-            building_offset_y: floorData.building_offset_y,
-            building_offset_z: floorData.building_offset_z,
+            building_offset_x: floorData.building_offset_x || 0,
+            building_offset_y: floorData.building_offset_y || 0,
+            building_offset_z: floorData.building_offset_z || 0,
             //these are not part of the database
             imageWidthPx: imageWidth,
             imageHeightPx: imageHeight,//these are not part of the database
@@ -124,7 +130,7 @@ function b64toBlob(b64Data, contentType, sliceSize) {
         byteArrays.push(byteArray);
     }
 
-    var blob = new Blob(byteArrays, { type: contentType });
+    var blob = new Blob(byteArrays, {type: contentType});
     return blob;
 }
 
@@ -152,19 +158,18 @@ function Devices() {
 }
 
 function loadConfig(file, newFile) {
-    // First, clear any existing floors and devices.
-    //CARTOGRAPHER.Controller.clear();
+    // TODO: clear any floor
     if (typeof _floors !== "undefined" && typeof _floors.floorData !== "undefined") {
         _floors.floorData.forEach(function (floor) {
             if (typeof floor.gridData !== "undefined") {
-                _scene.remove(floor.gridData.plane);
+                scene.remove(floor.gridData.plane);
             }
         });
     }
 
     _floors.clear();
     _devices.clear();
-    var txIcons = [], db = [], _targetZ = 0, config;
+    var txIcons = [], db = [], config, democonfig = [];
 
     var reader = new FileReader();
     reader.onloadend = function () {
@@ -178,10 +183,19 @@ function loadConfig(file, newFile) {
             return;
         }
 
+        if (!Array.isArray(config.floors)) {
+            democonfig.push(config.floors);
+            config.floors = democonfig;
+        }
+
         async.eachSeries(config.floors, function (floor, onSingleFloorLoaded) {
             async.waterfall([
-                function (callback1) { getMeta(floor, domURL, callback1); },
-                function (url, floorData, width, height, callback2) { loadFloor(url, floorData, width, height, callback2); }
+                function (callback1) {
+                    getMeta(floor, domURL, callback1);
+                },
+                function (url, floorData, width, height, callback2) {
+                    loadFloor(url, floorData, width, height, callback2);
+                }
             ], function () {    // Called after the last function in the waterfall calls its callback (callback2).
                 onSingleFloorLoaded();  // Tells async.eachSeries that this iteration using config.floors[i] is done.
             });
@@ -191,11 +205,13 @@ function loadConfig(file, newFile) {
                 console.log(config);
             }
             else {
+                if ((typeof config.devices === "undefined" || !Array.isArray(config.devices) ) && 1) {
+                    config.devices = config.floors[0].devices;
+                }
+
                 for (var i = 0; i < config.devices.length; i++) {
                     var data = config.devices[i];
 
-                    // TODO: Maybe reorganize Device class. THREE.Object3d is currently a child of Device but currently
-                    //       one needs to look at the mesh to find the position of the device.
                     var device = {
                         id: data.id,
                         name: data.name,
@@ -273,16 +289,13 @@ function saveConfig(newConfigFlag) {
             originXPx: entry.originXPx,
             originYPx: entry.originYPx,
             altitude: entry.altitude,
-            building_offset_x: entry.building_offset_x,
-            building_offset_y: entry.building_offset_y,
-            building_offset_z: entry.building_offset_z,
             imageWidthPx: entry.imageWidthPx,
             imageHeightPx: entry.imageHeightPx
         };
 
         // Save polys, also known as "areas".
         if (typeof entry.savedAreas == "undefined") {
-            var areas = new Array();
+            var walls = new Array();
 
             if (typeof entry.gridData !== "undefined" && typeof entry.gridData.polys !== "undefined") {
                 entry.gridData.polys.forEach(function (poly) {
@@ -290,12 +303,12 @@ function saveConfig(newConfigFlag) {
                     poly.cubes.forEach(function (cube) {
                         points.push(cube.position);
                     });
-                    areas.push({ points: points, color: poly.color });
+                    walls.push({ points: points, color: poly.color });
                 });
             }
-            floor.areas = areas;
+            floor.walls = walls;
         } else {
-            floor.areas = entry.savedAreas; // Floor's poly list from the config were never loaded because the floor was not ever selected.
+            floor.walls = entry.savedAreas; // Floor's poly list from the config were never loaded because the floor was not ever selected.
             // So, preserve the poly config for this unselected floor and save it back to the new config file.
         }
         changes = 1;
@@ -326,6 +339,8 @@ function saveConfig(newConfigFlag) {
 
         devices.push(device);
     });
+    floors = floors[0];
+    floors.devices = devices;
 
     var icons = [];
     var dbEntries = [];
@@ -367,14 +382,19 @@ function saveConfig(newConfigFlag) {
         dbEntries.push(dbEntry);
     });
 
-    var json = JSON.stringify({ unit: "meters", floors: floors, devices: devices, txIcons: icons, db: dbEntries }, null, '\t');
+    var json = JSON.stringify({
+        unit: "meters",
+        floors: floors,
+        txIcons: icons,
+        db: dbEntries
+    }, null, '\t');
     var blob = new Blob([json], { type: "text/plain;charset=utf-8" });
     if (!newConfigFlag) {
         saveAs(blob, "config.txt");
     }
     if (typeof localStorage !== "undefined")
         localStorage.setItem("config", json);
-    //GUI.RefreshDevices();
+    refreshDevices();
 
 }
 
@@ -427,7 +447,9 @@ function Floors() {
     this._selectedFloorIndex = -1;
     Object.defineProperties(this, {
         "selectedFloorIndex": {
-            "get": function () { return this._selectedFloorIndex; }
+            "get": function () {
+                return this._selectedFloorIndex;
+            }
         }
     });
 
@@ -489,15 +511,9 @@ function Floors() {
                                 scene.add(device);
                                 scene.add(device.edges);
                                 _devices.visibleDevices.push(device);
-
                             }
                         }
-
                         drawAxesHelper(100 / selectedFloor.scale, selectedFloor.mesh.position.z);
-
-                        /*if (typeof _gui.FloorEditorValues !== "undefined") {
-                            _gui.FloorEditorValues.refresh();
-                        }*/
                     }
                 });
 
@@ -520,7 +536,11 @@ function Floors() {
             });
 
             var altitude = { value: 0 };
-            TweenLite.to(altitude, 1, { value: selectedFloor.mesh.position.z, onUpdate: function () { _targetZ = altitude.value; } });
+            TweenLite.to(altitude, 1, {
+                value: selectedFloor.mesh.position.z, onUpdate: function () {
+                    _targetZ = altitude.value;
+                }
+            });
 
             // document.body.dispatchEvent(onSelectedFloorChanged);  //doesn't work like this.  lets do this manually for now:
             if (typeof initGrid != "undefined") {

@@ -161,6 +161,7 @@
         <tbody class = "tableContent" id = "deviceContent">
 
         </tbody>
+        <tr class = "deviceFooter" id = "deviceFooter"></tr>
     </table>
 </div>
 <div class="addDeviceMenu" id="addDeviceMenu" title="Add New Device" hidden>
@@ -180,8 +181,8 @@
             <td>
                 <select name="deviceType" id="deviceType" class="fa-text-height ui-widget deviceField">
                     <option selected value="base">Please Select</option>
-                    <option value="RECEIVER">Receiver</option>
-                    <option value="SENSOR">Sensor</option>
+                    <option value=5>Receiver</option>
+                    <option value=8>Sensor</option>
                 </select>
             </td>
         </tr>
@@ -217,10 +218,10 @@
         </tr>
         <tr>
             <td>
-                <label for="editdeviceType">Type</label>
+                <label for="editDeviceType">Type</label>
             </td>
             <td>
-                <select name="editdeviceType" id="editdeviceType" class="fa-text-height ui-widget deviceField">
+                <select name="editDeviceType" id="editDeviceType" class="fa-text-height ui-widget deviceField">
                     <option selected value="base">Please Select</option>
                     <option value="RECEIVER">Receiver</option>
                     <option value="SENSOR">Sensor</option>
@@ -229,10 +230,10 @@
         </tr>
         <tr>
             <td>
-                <label for="editdeviceModel">Model</label>
+                <label for="editDeviceModel">Model</label>
             </td>
             <td>
-                <select name="editdeviceModel" id="editdeviceModel" class="fa-text-height ui-widget deviceField">
+                <select name="editDeviceModel" id="editDeviceModel" class="fa-text-height ui-widget deviceField">
                     <option>Please choose from above</option>
                 </select>
             </td>
