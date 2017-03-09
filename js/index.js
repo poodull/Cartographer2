@@ -142,7 +142,6 @@ function bindListeners () {
             _floors.clear();
             loadDefaultFloor();
             loadConfig(null);
-            saveConfig(true);
         } else {
             $('#confirmNew').dialog('open');
         }
@@ -151,6 +150,15 @@ function bindListeners () {
     $('.device').click(function () {
         $('#deviceMenu')[0].removeAttribute('hidden');
         refreshDevices(); //TODO: change this function to load the device list from config in local storage
+    });
+    $('#deleteDevice').click(function () {
+        deleteDevice();
+    });
+    $('#selectDevice').click(function () {
+        selectDevice();
+    });
+    $('#deviceContainerClose').click(function () {
+        $('.deviceMenu').attr('hidden', true);
     });
     $('.addDevice').click(function () {
         controls.mouseButtons.ORBIT = -1;
@@ -220,9 +228,12 @@ function drawAxesHelper(length, altitude) {
     scene.add(scene.axes);
 }
 
-function createElement (tag, id, css) {
+function createElement (tag, id, name, type, css) {
         var element = document.createElement(tag);
         element.id = id;
+        element.type = type;
+        element.class = name;
+        element.name = id;
         element.style.cssText = css;
         return element;
 }

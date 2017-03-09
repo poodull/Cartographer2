@@ -52,7 +52,7 @@ function setTooltip() {
 }
 
 function setOffSetTooltip() {
-    $(".toolbox-tools").draggable({
+    $(".toolbox-tools, .deviceMenu").draggable({
         handle: ".panel-heading",
         stop: function(evt, el) {
             // Save size and position in cookie

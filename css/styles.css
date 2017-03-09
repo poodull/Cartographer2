@@ -86,20 +86,36 @@ canvas {
     font-family: Calibri;
 }
 
-.deviceMenu{
-    position: absolute;
-    color: white;
-    border: 1px solid #d9edf7;
-}
-
 .addDeviceMenu {
     position: initial;
 }
 
 .deviceMenu {
-    width: 200px;
+    width: 400px;
     left: 60px;
     top: 200px;
+    position: absolute;
+    color: #060e46;
+    border: 1px solid #d9edf7;
+    background-color: #f2f3f0;
+    font-size: 16px;
+    font-family: calibri;
+    font-weight: 500;
+    text-align: center;
+}
+
+.deviceHeader {
+    background-color: #ccc;
+}
+
+th {
+    font-size: 20px;
+}
+
+#textContainer td {
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-botton: 5px;
 }
 
 .deviceContainerClose {
@@ -127,7 +143,7 @@ canvas {
     font-size: 16px;
     font-family: calibri;
     font-weight: 500;
-    position: fixed;
+    position: fixed !important;
     bottom: 80px;
     right: 41px;
 }
@@ -137,6 +153,7 @@ canvas {
     padding-bottom: 5px;
 }
 
-.close-toolbox-tools {
+.close-toolbox-tools,
+.deviceContainerClose {
     cursor: pointer;
 }

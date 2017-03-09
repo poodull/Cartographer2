@@ -46,6 +46,16 @@ function addDevice (x, y) {
     });
 }
 
+function deleteDevice () {
+    var deleteDevice = $("button#deleteDevice").siblings("#deleteDeviceSelect:checked");
+    deleteDevice.siblings("#deleteDevice").trigger("click");
+}
+
+function selectDevice () {
+    var selectDevice = $("#deleteDeviceSelect:checked");
+    selectDevice.trigger("click");
+}
+
 function refreshDevices () {
     var config, temp;
     var context = document.getElementById('deviceContent');
@@ -54,15 +64,12 @@ function refreshDevices () {
         config = localStorage.getItem("config");
     }
 
-    if (config != null) {
-        //if (config.devices != null) {
+    if (config !== null) {
         //Create a new blob to hold the data
         temp = (new Blob([config], { type: "text/plain;charset=utf-8" }));
-        var reader = new FileReader();
-        //set up the file reader
+        var reader = new FileReader();  //set up the file reader
         reader.onloadend = function () {
-            try {
-                //obtain the config through the file reader.
+            try {  //obtain the config through the file reader.
                 config = JSON.parse(reader.result);
             }
             catch (e) {
@@ -91,10 +98,12 @@ function refreshDevices () {
                         var textContainer = createElement('tr', 'textContainer');
                         var nameText = createElement('td', "deviceAlphaText");
                         var modelText = createElement('td', "deviceTableText");
-                        var idText = createElement('td', "deviceTableText");
+                        var idText = createElement('td', "deviceTableText", "deviceID");
                         var typeText = createElement('td', "deviceTableText");
                         typeText.style.textAlign = ("center");
                         var statusText = createElement('td', "deviceTableText");
+                        var deleteDevice = createElement('button', "deleteDevice");
+                        var deleteDeviceSelect = createElement('input', "deleteDeviceSelect", "deleteDeviceSelect", "radio");
 
                         //Sets the device state to gray and changes the color of the status bar in the table.
                         device.STATE = DeviceState.UNKNOWN;
@@ -115,8 +124,6 @@ function refreshDevices () {
                                 device.STATE = DeviceState.FOUND;
                             }
                         }
-
-
                         //Format text based on device variables
                         var devName = device.name,
                             devID = device.id,
@@ -125,16 +132,26 @@ function refreshDevices () {
                             devState = device.STATE;
 
                         //When you click the text, center the mesh on the screen
-                        textContainer.onclick = function () {
+                        deleteDeviceSelect.onclick = function () {
                             //Set the target of the camera controller
                             controls.target.copy(device.mesh.position);
                             //Lerp the camera position
-                            TweenLite.to(_camera.position, 1, {
+                            TweenLite.to(camera.position, 1, {
                                 x: device.mesh.position.x,
                                 y: device.mesh.position.y,
                                 z: camera.position.z
                             });
-
+                        };
+                        deleteDevice.onclick = function () {
+                            _devices.deviceList.forEach(function (item, index) {
+                                if (item.id === device.id) {
+                                    scene.remove(device.mesh);
+                                    scene.remove(device.mesh.edges);
+                                    scene.remove(device.mesh.deviceOutline);
+                                    _devices.deviceList.splice(index, 1);
+                                }
+                            });
+                            saveConfig (true);
                         };
                         //Add more states/enums at the bottom of loader.js
                         //Change devType string based on device type
@@ -173,10 +190,12 @@ function refreshDevices () {
 
 
                         //textContainer.appendChild(selectCell);
+                        textContainer.appendChild(deleteDeviceSelect);
                         textContainer.appendChild(nameText);
                         textContainer.appendChild(typeText);
                         textContainer.appendChild(modelText);
                         textContainer.appendChild(idText);
+                        textContainer.appendChild(deleteDevice);
 
                         //Bind this container to the device incase we need to use it later
                         device.textContainer = textContainer;
