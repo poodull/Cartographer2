@@ -35,12 +35,12 @@
             <p class = "tooltipHeader">Import Existing Floor Map</p>
             <p class = "tooltipContent">Import and continue an existing .plan file.</p>
         </div>
-        <a class = "exportFile" id="exportFile">Export</a>
+        <a class = "subMenuButton exportFile" id="exportFile"> </a>
         <div class = "tooltip exportTooltip">
             <p class = "tooltipHeader">Save Floor Plan Map</p>
             <p class = "tooltipContent">Save all changes of the Floor Plan Map to file.</p>
         </div>
-        <a class = "captureFile" id="captureFile">Capture</a>
+        <a class = "subMenuButton captureFile" id="captureFile"> </a>
         <div class = "tooltip exportTooltip">
             <p class = "tooltipHeader">Capture Image of Floor Plan</p>
             <p class = "tooltipContent">Save a snapshot image of the Floor Plan Map.</p>
@@ -48,35 +48,35 @@
     </div>
     <div class = "floorImage subMenu" hidden>
         <input type="file" id="loadFloorImage" name="cmdImportImage" hidden multiple/>
-        <a class = "subMenuButton importFloorImage" id="importFloorImage"></a>
+        <a class = "subMenuButton importFloorImage" id="importFloorImage"> </a>
         <div class = "tooltip importTooltip">
             <p class = "tooltipHeader">Import Floor Image</p>
             <p class = "tooltipContent"></p>
         </div>
-        <a class = "originFloorImage" id = "originFloorImage">Origin</a>
+        <a class = "subMenuButton originFloorImage" id = "originFloorImage"> </a>
         <div class = "tooltip originTooltip">
             <p class = "tooltipHeader">Set Floor Origin</p>
             <p class = "tooltipContent">Set a point on a Floor Map.</p>
         </div>
-        <a class = "scaleFloorImage" id = "scaleFloorImage">Scale</a>
+        <a class = "subMenuButton scaleFloorImage" id = "scaleFloorImage"></a>
         <div class = "tooltip scaleTooltip">
             <p class = "tooltipHeader">Set Floor Map Scale</p>
             <p class = "tooltipContent">Assign a scale to the floor map to calibrate walls and device locations.</p>
         </div>
-        <a class = "clearFloorImage" id="clearFloorImage">Clear</a>
+        <a class = "subMenuButton clearFloorImage" id="clearFloorImage"> </a>
         <div class = "tooltip clearTooltip">
             <p class = "tooltipHeader">Clear Floor Image</p>
             <p class = "tooltipContent">Remove the current image and replace it with default grid.</p>
         </div>
-        <div class = "originSubMenu">
-            <label for="originLat"> Latitude </label>
+        <div class = "originSubMenu thirdMenu" hidden>
+            <label for="originLat"> Latitude: </label>
             <input class = "originLat" id = "originLat">
-            <label for="originLat"> Longitude </label>
+            <label for="originLon"> Longitude: </label>
             <input class = "originLon" id = "originLon">
-            <label for="originAltitude"> Altitude </label>
-            <input class = "originLat" id = "originAltitude">
+            <label for="originAltitude"> Altitude: </label>
+            <input class = "originAltitude" id = "originAltitude">
         </div>
-        <div class = "scaleSubMenu">
+        <div class = "scaleSubMenu thirdMenu" hidden>
             <label for="scaleMeters"> Meters </label>
             <input type = "radio" name="scale" value = "meters" class = "scaleMeters" id = "scaleMeters">
             <label for="scaleInches"> Inches </label>
@@ -84,18 +84,18 @@
         </div>
     </div>
     <div class = "walls subMenu" hidden>
-        <a class = "subMenuButton penWalls"></a>
+        <a class = "subMenuButton penWalls"> </a>
         <div class = "tooltip penTooltip">
             <p class = "tooltipHeader">Create Walls</p>
             <p class = "tooltipContent">Create walls on a Floor Map for visual cues and attenuation mapping.</p>
         </div>
-        <a class = "subMenuButton cutWalls"></a>
+        <a class = "subMenuButton cutWalls"> </a>
         <div class = "tooltip cutTooltip">
             <p class = "tooltipHeader">Cut</p>
             <p class = "tooltipContent">Use the Cut tool to subdivide large walls where doorways or windows are.
                 Select where you want the cut-out to be and the walls will be split into sections.</p>
         </div>
-        <a class = "deleteWalls">Delete</a>
+        <a class = "subMenuButton deleteWalls"> </a>
         <div class = "tooltip deleteTooltip">
             <p class = "tooltipHeader">Delete Editor</p>
             <p class = "tooltipContent">Delete a wall segment by clicking and dragging a selection around the desired
@@ -103,24 +103,24 @@
         </div>
     </div>
     <div class = "device subMenu" hidden>
-        <a class = "subMenuButton addDevice"></a>
+        <a class = "subMenuButton addDevice"> </a>
         <div class = "tooltip addDeviceTooltip">
             <p class = "tooltipHeader">Add Device</p>
             <p class = "tooltipContent">Create walls on a Floor Map for visual cues and attenuation mapping.</p>
         </div>
-        <a class = "moveDevice" id = "moveDevice">Move</a>
+        <a class = "subMenuButton moveDevice" id = "moveDevice"> </a>
         <div class = "tooltip moveDeviceTooltip">
             <p class = "tooltipHeader">Move Device</p>
             <p class = "tooltipContent">Use the Cut tool to subdivide large walls where doorways or windows are.
                 Select where you want the cut-out to be and the walls will be split into sections.</p>
         </div>
-        <a class = "selectDevice" id = "selectDevice">Select</a>
+        <a class = "subMenuButton selectDevice" id = "selectDevice">Select</a>
         <div class = "tooltip selectDeviceTooltip">
             <p class = "tooltipHeader">Select Device</p>
             <p class = "tooltipContent">Delete a wall segment by clicking and dragging a selection around the desired
                 wall or walls to delete.</p>
         </div>
-        <a class = "deleteDevice" id = "deleteDevice">Delete</a>
+        <a class = "subMenuButton deleteDevice deleteDev" id = "deleteDevice"> </a>
         <div class = "tooltip deleteDeviceTooltip">
             <p class = "tooltipHeader">Delete Device</p>
             <p class = "tooltipContent">Delete a wall segment by clicking and dragging a selection around the desired
@@ -129,25 +129,25 @@
     </div>
 </div>
 <div class ="mainToolbar">
-    <a class = "myButton file fa fa-file"></a>
-    <a class = "myButton floorImage fa fa-file"></a>
+    <a class = "myButton file"></a>
+    <a class = "myButton floorImage"></a>
     <div class = "tooltip floorImageTooltip">
         <p class = "tooltipHeader">Floor Image Controls</p>
         <p class = "tooltipContent">Import and scale a floor image such as a blueprint or drawn map.</p>
     </div>
-    <a class = "walls myButton fa fa-file"></a>
+    <a class = "walls myButton"></a>
     <div class = "tooltip wallsTooltip">
         <p class ="tooltipHeader">Wall Editor</p>
         <p class = "tooltipContent">Outline walls on a FLoor Map for visual cues and geolocation.</p>
     </div>
-    <a class = "select myButton fa fa-file"></a>
-    <a class = "device myButton fa fa-file"></a>
+    <a class = "select myButton"></a>
+    <a class = "device myButton"></a>
 </div>
 <div id="ThreeJS"></div>
 <div hidden id="confirmNew">
     <p><span class = "ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>This will clear the current configuration. Are you sure?</p>
 </div>
-<div class = "deviceMenu panel panel-primary draggable-panel toolbar-panel ui-draggable ui-resizable" id = "deviceMenu" hidden>
+<div class = "deviceMenu panel panel-primary draggable-panel toolbar-panel ui-draggable ui-resizable custom-dialog" id = "deviceMenu" hidden>
     <span class = "deviceContainerClose" id = "deviceContainerClose"> x </span>
     <div class = "deviceHeader panel-heading lang-panel-header-tools">Device List</div>
     <table class = "deviceTable" id = "deviceTable">
@@ -249,12 +249,12 @@
         </tr>
     </table>
 </div>
-<div class="panel panel-primary draggable-panel toolbar-panel ui-draggable ui-resizable originFloorImage-dialog toolbox-tools" hidden>
+<div class="panel panel-primary draggable-panel toolbar-panel ui-draggable ui-resizable originFloorImage-dialog toolbox-tools custom-dialog" hidden>
     <div class="panel-heading lang-panel-header-tools"> Info <i class="fa fa-times pull-right close-panel close-toolbox-tools"></i></div>
 <span class = "off-center-tooltip-content"> Select the point on the map to identify as the origin. A useful origin can be used to line up multiple floors, such as
 an elevator shaft, stairwell, or cornerstone. </span>
 </div>
-<div class="panel panel-primary draggable-panel toolbar-panel ui-draggable ui-resizable scaleFloorImage-dialog toolbox-tools" hidden>
+<div class="panel panel-primary draggable-panel toolbar-panel ui-draggable ui-resizable scaleFloorImage-dialog toolbox-tools custom-dialog" hidden>
     <div class="panel-heading lang-panel-header-tools"> Info <i class="fa fa-times pull-right close-panel close-toolbox-tools"></i></div>
 <span class = "off-center-tooltip-content"> Select two points on the map to define the distance to scale. Use known points such as doorways or other standard widths for ease. </span>
 </div>

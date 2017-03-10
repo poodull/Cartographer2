@@ -11,6 +11,7 @@ var ControlModes = {
     DeviceManager: 'deviceManager',
     PlaceDevice: 'placeDevice',
     AddDevice: 'addDevice',
+    MoveDevice: 'moveDevice',
     EditDevice: 'editDevice',
     DrawPoly: 'drawPoly',
     Select: 'select'

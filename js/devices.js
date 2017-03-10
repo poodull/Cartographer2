@@ -37,6 +37,8 @@ function addDevice (x, y) {
                         refreshDevices();
                     }
                 }
+                container.style.cursor = "default";
+                _drawMode.mode = '';
             },
             Cancel: function () {
                 $('#addDeviceMenu').dialog("close");

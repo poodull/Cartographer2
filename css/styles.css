@@ -1,13 +1,21 @@
 .mainToolbar {
     position: absolute;
     height: 100%;
-    width: 40px !important;
+    width: 50px !important;
     display: inline;
-    background-color: aliceblue;
+    background-color: #276ca9;
 }
 
 .subToolbar {
     height: 50px;
+    background-color: #276ca9;
+    width: 100%;
+}
+
+.active {
+    background-color: #1b6d85 !important;
+    border: 1px solid #1a10b5;
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.5), 0 1px 0;
 }
 
 .subMenuButton {
@@ -17,24 +25,84 @@
     width: 2.5em;
     height: 2.5em;
     border-radius: 6px;
-    background-color: #3e3e42;
+    background-color: #cde7f7;
     cursor: pointer;
     display: inline-block;
+    margin-top: 6px;
+    margin-left: 4px;
+}
+
+.thirdMenu {
+    padding-left: 40px;
+    font-size: 24px;
+    position: absolute;
+    padding-top: 10px;
+}
+
+.originSubMenu input {
+    width: 80px;
+}
+
+.originSubMenu label {
+    padding-left: 20px;
 }
 
 .newFile {
     background-image: url("../images/new.PNG");
 }
 
+.moveDevice {
+    background-image: url("../images/move.PNG");
+}
+
+.myButton.file {
+    background-image: url("../images/file.PNG");
+}
+
+.myButton.walls {
+    background-image: url("../images/wall.PNG");
+}
+
+.myButton.device {
+    background-image: url("../images/device.PNG");
+}
+
+.originFloorImage {
+    background-image: url("../images/origin.PNG");
+}
+
+.scaleFloorImage {
+    background-image: url("../images/scale.PNG");
+}
+
+.deleteWalls {
+    background-image: url("../images/deleteWall.PNG");
+}
+
+.deleteDevice {
+    background-image: url("../images/deleteDevice.PNG");
+}
+
+.clearFloorImage {
+    background-image: url("../images/clear.PNG");
+}
+
 .importFile {
     background-image: url("../images/importConfig.PNG");
+}
+.exportFile {
+    background-image: url("../images/export.PNG");
+}
+
+.captureFile {
+    background-image: url("../images/capture.PNG");
 }
 
 .importFloorImage {
     background-image: url("../images/importImage.PNG");
 }
 
-.pewnWalls {
+.penWalls {
     background-image: url("../images/pen.PNG");
 }
 
@@ -52,23 +120,22 @@
     display: block;
 }
 
-.fa {
-    width: 39px;
-}
-
 canvas {
-    position: absolute;
     left: 48px;
 }
 
 .myButton {
-    width: 2.5em;
+    background-size: 30px 30px;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 39px;
     height: 2.5em;
-    text-align: center;
     border-radius: 6px;
-    background-color: #3e3e42;
+    background-color: #cde7f7;
     margin-bottom: 3px;
     cursor: pointer;
+    display: inline-block;
+    margin-left: 4px;
 }
 
 .tooltipStyle {
@@ -94,7 +161,7 @@ canvas {
     width: 400px;
     left: 60px;
     top: 200px;
-    position: absolute;
+    position: absolute !important;
     color: #060e46;
     border: 1px solid #d9edf7;
     background-color: #f2f3f0;
@@ -123,11 +190,6 @@ th {
     float:right;
     padding:2px 5px;
     background:#ccc;
-}
-
-.originSubMenu,
-.scaleSubMenu {
-    display: inline;
 }
 
 .toolbox-tools {

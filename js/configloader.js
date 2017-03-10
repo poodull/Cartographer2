@@ -544,7 +544,7 @@ function Floors() {
             });
 
             // document.body.dispatchEvent(onSelectedFloorChanged);  //doesn't work like this.  lets do this manually for now:
-            if (typeof initGrid != "undefined") {
+            if (typeof initGrid !== "undefined") {
                 if (selectedFloor.gridData !== undefined) {
                     initGrid(selectedFloor.mesh.position.x,
                         selectedFloor.mesh.position.y,
@@ -552,8 +552,7 @@ function Floors() {
                         selectedFloor.mesh.geometry.parameters.width,
                         selectedFloor.mesh.geometry.parameters.height,
                         5 / selectedFloor.scale, selectedFloor.gridData.polys, selectedFloor.gridData.plane);
-                }
-                else {
+                } else {
                     initGrid(selectedFloor.mesh.position.x,
                         selectedFloor.mesh.position.y,
                         selectedFloor.mesh.position.z,
@@ -563,7 +562,6 @@ function Floors() {
                         undefined, undefined);
                 }
             }
-
         }
     };
 
@@ -584,7 +582,6 @@ function Floors() {
         this.floorData.forEach(function (floor) {
             scene.remove(floor.mesh);
         });
-
         this.floorData.length = 0;
         this._selectedFloorIndex = -1;
     };
@@ -594,7 +591,6 @@ function Floors() {
             scene.remove(this.floorData[floorIndex].mesh);
             this._selectedFloorIndex = -1;
         }
-
         this.floorData.splice(floorIndex, 1);
     };
 }

@@ -1,4 +1,4 @@
-var scene, camera, renderer, controls, container, gui = {}, raycaster, sceneVoxels, changes = 0;
+var scene, camera, renderer, controls, container, gui = {}, raycaster, sceneVoxels, changes = 0, _plane, _selectedDevice;
 
 $(document).ready(function () {
     init();
@@ -25,7 +25,7 @@ function init() {
     camera = new THREE.PerspectiveCamera(20, window.innerWidth/window.innerHeight, 0.1, 10000);
 
     renderer = new THREE.WebGLRenderer({antialias: true});
-    renderer.setSize(window.innerWidth-65, window.innerHeight-25);
+    renderer.setSize(window.innerWidth-25, window.innerHeight-25);
     container = document.getElementById('ThreeJS');
     container.appendChild( renderer.domElement );
 
@@ -86,10 +86,17 @@ $('a.myButton').click(function() {
             $('.' + classes[i]).show();
         }
     }
+    $(this).siblings().removeClass('active');
+    $(this).addClass('active');
 });
 }
 
 function bindListeners () {
+    $('a.subMenuButton').click(function() {
+        container.style.cursor = "default";
+        $(this).siblings().removeClass('active');
+        $(this).addClass('active');
+    });
     $('#importFile').click( function () {
         $('#loadConfig').trigger('click');
     });
@@ -103,11 +110,17 @@ function bindListeners () {
         $('#loadFloorImage').trigger('click');
     });
     $('#originFloorImage').click( function () {
-        $('.toolbox-tools').attr('hidden', true);
+        $('.toolbox-tools, .thirdMenu').attr('hidden', true);
+        $('.thirdMenu')[1].removeAttribute("style");
+        $('.originSubMenu')[0].removeAttribute('hidden');
+        $('.originSubMenu.thirdMenu').attr('style', 'display:inline');
         $('.originFloorImage-dialog')[0].removeAttribute('hidden');
     });
     $('#scaleFloorImage').click( function () {
-        $('.toolbox-tools').attr('hidden', true);
+        $('.toolbox-tools, .thirdMenu').attr('hidden', true);
+        $('.thirdMenu')[0].removeAttribute("style");
+        $('.scaleSubMenu')[0].removeAttribute('hidden');
+        $('.scaleSubMenu.thirdMenu').attr('style', 'display:inline');
         $('.scaleFloorImage-dialog')[0].removeAttribute('hidden');
     });
     $('.close-toolbox-tools').click( function () {
@@ -157,6 +170,10 @@ function bindListeners () {
     $('#selectDevice').click(function () {
         selectDevice();
     });
+    $('#moveDevice').click(function () {
+        container.style.cursor = "crosshair";
+        _drawMode.mode = ControlModes.MoveDevice;
+    });
     $('#deviceContainerClose').click(function () {
         $('.deviceMenu').attr('hidden', true);
     });
@@ -172,6 +189,9 @@ function bindListeners () {
     container.addEventListener('mousedown', function () {
         onMouseDown(event);
     });
+    container.addEventListener('mousemove', function () {
+        showLocation();
+    });
 
     if ($('#confirmNew').length) {
         $('#confirmNew').dialog({
@@ -184,9 +204,11 @@ function bindListeners () {
                 Yes: function () {
                     $('#confirmNew').dialog("close");
                     _floors.clear();
+                    $('.custom-dialog').attr('hidden', true);
                     loadDefaultFloor();
                     loadConfig(null);
                     saveConfig(true);
+                    changes = 0;
                 },
                 No: function () {
                     $('#confirmNew').dialog("close");
