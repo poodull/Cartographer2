@@ -2,7 +2,6 @@
  * Created by Vamsi on 2/28/2017.
  */
 var _floors = new Floors();
-var _devices = new Devices();
 
 function loadDefaultFloor() {
     var domURL = window.URL || window.webkitURL || window;
@@ -95,8 +94,8 @@ function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
             gridData: undefined //filled in by grid constuctor
         };
 
-        if (typeof floorData.areas !== "undefined") {
-            floor.savedAreas = floorData.areas; // List of polys on this floor saved to the config file.
+        if (typeof floorData.walls !== "undefined") {
+            floor.savedAreas = floorData.walls; // List of polys on this floor saved to the config file.
             // initGrid should read these values to create poly objects when it is first called for a floor.
         }
 
@@ -132,29 +131,6 @@ function b64toBlob(b64Data, contentType, sliceSize) {
 
     var blob = new Blob(byteArrays, {type: contentType});
     return blob;
-}
-
-function Devices() {
-    this.deviceList = [];
-    this.meshList = [];
-    this.visibleDevices = [];
-
-    this.getDevice = function (deviceID) {
-        return this.deviceList.find(function (element) {
-            return element.id.toString() === deviceID;
-        });
-    };
-
-    this.clear = function () {
-        this.meshList.forEach(function (device) {
-            scene.remove(device);
-            scene.remove(device.edges);
-        });
-
-        this.deviceList.length = 0;
-        this.meshList.length = 0;
-        this.visibleDevices.length = 0;
-    };
 }
 
 function loadConfig(file, newFile) {
@@ -203,25 +179,25 @@ function loadConfig(file, newFile) {
             if (newFile || file == null) {
                 console.log(config);
             } else {
-                if ((typeof config.devices === "undefined" || !Array.isArray(config.devices) ) && 1) {
+                if ((typeof config.devices === "undefined" || !Array.isArray(config.devices) ) && 1 && config.floors[0]) {
                     config.devices = config.floors[0].devices;
                 }
+                if (config.devices) {
+                    for (var i = 0; i < config.devices.length; i++) {
+                        var data = config.devices[i];
 
-                for (var i = 0; i < config.devices.length; i++) {
-                    var data = config.devices[i];
+                        var device = {
+                            id: data.id,
+                            name: data.name,
+                            model: data.model,
+                            deviceType: data.deviceType
+                        };
 
-                    var device = {
-                        id: data.id,
-                        name: data.name,
-                        model: data.model,
-                        deviceType: data.deviceType
-                    };
-
-                    var floor = _floors.floorData.find(function (element) {
-                        return element.id == data.floorID
-                    });
-
-                    loadDevice(device, data.x * floor.scale, data.y * floor.scale, data.floorID);
+                        var floor = _floors.floorData.find(function (element) {
+                            return element.id == data.floorID
+                        });
+                        loadDevice(device, data.x * floor.scale, data.y * floor.scale, data.floorID);
+                    }
                 }
             }
             if (_floors.floorData.length > 0) {
@@ -291,7 +267,7 @@ function saveConfig(newConfigFlag) {
             imageHeightPx: entry.imageHeightPx
         };
 
-        // Save polys, also known as "areas".
+        // Save polys, also known as "walls".
         if (typeof entry.savedAreas == "undefined") {
             var walls = new Array();
 
@@ -400,6 +376,10 @@ function saveConfig(newConfigFlag) {
 }
 
 function loadDevice(device, x, y, floorID) {
+    if (typeof lastTouchPoint !== "function") {
+        return false;
+    }
+
     var material = new THREE.MeshLambertMaterial({
         color: "green",
         depthWrite: true
@@ -414,9 +394,15 @@ function loadDevice(device, x, y, floorID) {
         geometry = new THREE.CubeGeometry(2, 2, 2);
 
     var deviceMesh = new THREE.Mesh(geometry, material);
-    deviceMesh.position.x = x;
-    deviceMesh.position.y = y;
-    deviceMesh.position.z = _floors.getFloorPosition(floorID).z + 1; // Floor altitude + height of mesh.
+
+    var point = lastTouchPoint();
+    if (typeof point == "undefined") {
+        point = getTouchPoint(x, y);
+    }
+
+    deviceMesh.position.x = typeof point == "undefined" ? x : point.x;
+    deviceMesh.position.y = typeof point == "undefined" ? y : point.y;
+    deviceMesh.position.z = typeof point == "undefined" ? 0 : point.z; // Floor altitude + height of mesh.
     deviceMesh.deviceID = device.id;
     deviceMesh.floorID = floorID;
     deviceMesh.name = "device_" + device.id;

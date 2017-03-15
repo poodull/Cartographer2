@@ -48,70 +48,86 @@
 }
 
 .newFile {
-    background-image: url("../images/new.PNG");
+    background-image: url("../images/new.png");
 }
 
 .moveDevice {
-    background-image: url("../images/move.PNG");
+    background-image: url("../images/move.png");
 }
 
 .myButton.file {
-    background-image: url("../images/file.PNG");
+    background-image: url("../images/file.png");
 }
 
 .myButton.walls {
-    background-image: url("../images/wall.PNG");
+    background-image: url("../images/wall.png");
 }
 
 .myButton.device {
-    background-image: url("../images/device.PNG");
+    background-image: url("../images/device.png");
 }
 
 .originFloorImage {
-    background-image: url("../images/origin.PNG");
+    background-image: url("../images/origin.png");
 }
 
 .scaleFloorImage {
-    background-image: url("../images/scale.PNG");
+    background-image: url("../images/scale.png");
 }
 
 .deleteWalls {
-    background-image: url("../images/deleteWall.PNG");
+    background-image: url("../images/deleteWall.png");
 }
 
 .deleteDevice {
-    background-image: url("../images/deleteDevice.PNG");
+    background-image: url("../images/deleteDevice.png");
 }
 
 .clearFloorImage {
-    background-image: url("../images/clear.PNG");
+    background-image: url("../images/clear.png");
 }
 
 .importFile {
-    background-image: url("../images/importConfig.PNG");
+    background-image: url("../images/importConfig.png");
 }
 .exportFile {
-    background-image: url("../images/export.PNG");
+    background-image: url("../images/export.png");
 }
 
 .captureFile {
-    background-image: url("../images/capture.PNG");
+    background-image: url("../images/capture.png");
 }
 
 .importFloorImage {
-    background-image: url("../images/importImage.PNG");
+    background-image: url("../images/importImage.png");
 }
 
 .penWalls {
-    background-image: url("../images/pen.PNG");
+    background-image: url("../images/pen.png");
 }
 
 .cutWalls {
-    background-image: url("../images/cut.PNG");
+    background-image: url("../images/cut.png");
 }
 
 .addDevice {
-    background-image: url("../images/add.PNG");
+    background-image: url("../images/add.png");
+}
+
+.selectDevice {
+    background-image: url("../images/select.png");
+}
+
+.selectButton {
+    background-image: url("../images/select.png");
+}
+
+.panSelect {
+    background-image: url("../images/add.png");
+}
+
+.zoomSelect {
+    background-image: url("../images/zoom.png");
 }
 
 .ui-icon {
@@ -120,8 +136,13 @@
     display: block;
 }
 
-canvas {
+div#ThreeJS{
     left: 48px;
+}
+
+#deviceDetailsLocation {
+    position: absolute;
+    background: white;
 }
 
 .myButton {

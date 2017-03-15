@@ -5,8 +5,6 @@ function onMouseDown (e) {
     e.preventDefault();
 
     switch (_drawMode.mode) {
-        case ControlModes.PlaceDevice:
-            break;
         case ControlModes.AddDevice:
             $('#addDeviceMenu').dialog('open');
             var $div = $(e.target);
@@ -19,7 +17,7 @@ function onMouseDown (e) {
             $("#editDeviceMenu").dialog('open');
             editDevice();
             break;
-        case ControlModes.MoveDevice:
+        case ControlModes.SetOrigin:
             break;
     }
 }
@@ -41,6 +39,7 @@ function showLocation() {
             scene.remove(_selectedDevice.deviceOutline);
         }
         _selectedDevice = null;
+        $('#deviceDetailsLocation').remove();
     }
 }
 
@@ -59,7 +58,23 @@ function getLocation (device) {
 
         var location = createElement('div', "deviceDetailsLocation", 'font-family:Roboto;font-size:16px;color:white;text-align:center');
         location.innerHTML = devX.toFixed(2) + "," + devY.toFixed(2);
+        location.style.left = (event.clientX + 10) + "px";
+        location.style.top = event.clientY + "px";
+        location.style.visibility = "visible";
         var text = createElement('div', "deviceDetailsText", 'font-family:Roboto;font-size:16px;color:white;text-align:center');
         text.innerHTML = devName;
+        container.appendChild(location);
+        container.appendChild(text);
+    }
+}
+
+function onDocumentKeyDown(e) {
+    var keyevent = window.event ? event : e;
+    switch (keyevent.keyCode) {
+        case 27:
+            $(".subMenu").children().removeClass('active');
+            container.style.cursor = "default";
+            _drawMode.mode = '';
+            break;
     }
 }

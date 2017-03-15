@@ -2,6 +2,8 @@
  * Created by Vamsi on 3/6/2017.
  */
 
+var _devices = new Devices();
+
 function addDevice (x, y) {
     var dialog = $('#addDeviceMenu').dialog({
         autoOpen: false,
@@ -46,6 +48,29 @@ function addDevice (x, y) {
             }
         }
     });
+}
+
+function Devices() {
+    this.deviceList = [];
+    this.meshList = [];
+    this.visibleDevices = [];
+
+    this.getDevice = function (deviceID) {
+        return this.deviceList.find(function (element) {
+            return element.id.toString() == deviceID;
+        });
+    };
+
+    this.clear = function () {
+        this.meshList.forEach(function (device) {
+            scene.remove(device);
+            scene.remove(device.edges);
+        });
+
+        this.deviceList.length = 0;
+        this.meshList.length = 0;
+        this.visibleDevices.length = 0;
+    };
 }
 
 function deleteDevice () {

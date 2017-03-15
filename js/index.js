@@ -1,5 +1,23 @@
-var scene, camera, renderer, controls, container, gui = {}, raycaster, sceneVoxels, changes = 0, _plane, _selectedDevice;
+var scene, camera, renderer, controls, container, raycaster, sceneVoxels, changes = 0, plane, _selectedDevice;
 
+var CubeColors = {
+    Red: 0,
+    Orange: 1,
+    Yellow: 2,
+    Green: 3,
+    Blue: 4,
+    Indigo: 5,
+    Violet: 6,
+    properties: {
+        0: { name: "red", hex: "#FF0000", attn: [0, 0, 0, 0, 0] },
+        1: { name: "orange", hex: "#FF7F00", attn: [0, 0, 0, 0, 0] },
+        2: { name: "yellow", hex: "#FFFF00", attn: [0, 0, 0, 0, 0] },
+        3: { name: "green", hex: "#00FF00", attn: [0, 0, 0, 0, 0] },
+        4: { name: "blue", hex: "#00FFFF", attn: [0, 0, 0, 0, 0] },
+        5: { name: "indigo", hex: "#0000FF", attn: [0, 0, 0, 0, 0] },
+        6: { name: "violet", hex: "#8B00FF", attn: [0, 0, 0, 0, 0] }
+    }
+};
 $(document).ready(function () {
     init();
     showSubtoolBar();
@@ -29,43 +47,16 @@ function init() {
     container = document.getElementById('ThreeJS');
     container.appendChild( renderer.domElement );
 
-
-
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.minPolarAngle = Math.PI * (4 / 8);
     controls.maxPolarAngle = Math.PI * (8 / 8);
     controls.minAzimuthAngle = Math.PI * (-1 / 8);
     controls.maxAzimuthAngle = Math.PI * (1 / 8);
+    controls.enableRotate = false;
 
     var ambientLight = new THREE.AmbientLight(0xffffff);
     ambientLight.name = "ambientlight";
     scene.add(ambientLight);
-
-    /*var controller = CARTOGRAPHER.Controller;
-    container.addEventListener('mousemove', controller.onDocumentMouseMove, false);
-    container.addEventListener('mousedown', controller.onDocumentMouseDown, false);
-    container.addEventListener('mouseup', controller.onDocumentMouseUp, false);
-    container.addEventListener('touchstart', controller.onDocumentTouchStart, false);
-    window.addEventListener('resize', controller.onWindowResize, false);
-
-    var floorPanel = new GUI.FloorPanel();
-    floorPanel.domElement.style.position = 'absolute';
-    floorPanel.domElement.style.bottom = '0px';
-    floorPanel.domElement.style.left = '0px';
-    container.appendChild(floorPanel.domElement);
-    gui.FloorPanel = floorPanel;
-
-    var deviceUI = new GUI.DeviceUI();
-    GUI.IntervalRefresh(800);
-    gui.DeviceUI = deviceUI;
-
-    var deviceContextMenu = new GUI.DeviceContextMenu();
-    gui.DeviceContextMenu = deviceContextMenu;
-
-    var devicePanel = new GUI.DevicePanel();
-    container.appendChild(devicePanel.domElement);
-    gui.DevicePanel = devicePanel;
-    gui.DevicePanelList = [];*/
 
     raycaster = new THREE.Raycaster();
 
@@ -74,7 +65,21 @@ function init() {
     ambientLightVoxels.name = "ambientlightvoxels";
     sceneVoxels.add(ambientLightVoxels);
     renderer.autoClear = false;
+
+
+    setTimeout(function(){
+        createPlane();
+        container.addEventListener('mousedown', onDocumentMouseDownDraw, false);
+        container.addEventListener('mouseup', onDocumentMouseUpDraw, false);
+        container.addEventListener('mousemove', onDocumentMouseMoveDraw, false);
+        //initDrawLine();
+        //createVoxelAt();
+        //redrawLine();
+    } , 1000);
 }
+
+var _allCubes=[],_tempCubes=[], _cubeSize=5, _tempLine, _cursorVoxel, drawModeRun=false, _selectedDragDevice, lastMouseClick;
+var _currentPen  = 0, _isCubesVisible=true, polylength=0; //default color
 
 function showSubtoolBar() {
 $('a.myButton').click(function() {
@@ -92,7 +97,9 @@ $('a.myButton').click(function() {
 }
 
 function bindListeners () {
-    $('a.subMenuButton').click(function() {
+    document.onkeydown = onDocumentKeyDown;
+
+    $('a.subMenuButton.penWalls, a.subMenuButton.cutWalls, a.subMenuButton.deleteWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice').click(function() {
         container.style.cursor = "default";
         $(this).siblings().removeClass('active');
         $(this).addClass('active');
@@ -126,9 +133,10 @@ function bindListeners () {
     $('.close-toolbox-tools').click( function () {
         $('.toolbox-tools').attr('hidden', true);
     });
-    $('#penWalls').click( function () {
+    $('.penWalls').click( function () {
         controls.mouseButtons.ORBIT = -1;
         _drawMode.mode = ControlModes.DrawPoly;
+        initDrawLine();
     });
     $('#loadConfig').change( function () {
         var file = $('#loadConfig').get(0).files[0];
@@ -162,7 +170,7 @@ function bindListeners () {
 
     $('.device').click(function () {
         $('#deviceMenu')[0].removeAttribute('hidden');
-        refreshDevices(); //TODO: change this function to load the device list from config in local storage
+        refreshDevices();
     });
     $('#deleteDevice').click(function () {
         deleteDevice();
@@ -173,6 +181,10 @@ function bindListeners () {
     $('#moveDevice').click(function () {
         container.style.cursor = "crosshair";
         _drawMode.mode = ControlModes.MoveDevice;
+    });
+    $('#originFloorImage').click(function () {
+        container.style.cursor = "crosshair";
+        _drawMode.mode = ControlModes.SetOrigin;
     });
     $('#deviceContainerClose').click(function () {
         $('.deviceMenu').attr('hidden', true);
@@ -197,7 +209,6 @@ function bindListeners () {
         $('#confirmNew').dialog({
             autoOpen: false,
             resizeable: false,
-            height: 190,
             width: 450,
             modal: true,
             buttons: {
@@ -216,9 +227,6 @@ function bindListeners () {
             }
         });
     }
-
-
-
 }
 
 function animate () {
