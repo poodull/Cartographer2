@@ -198,6 +198,10 @@ function bindListeners () {
         controls.mouseButtons.ORBIT = -1;
         _drawMode.mode = ControlModes.EditDevice;
     });
+    $('.zoomOutSelect').click(function () {
+        var canvas = $('canvas')[0];
+        canvas.addEventListener('mouseWheel', updateZoom(-0.1), false);
+    });
     container.addEventListener('mousedown', function () {
         onMouseDown(event);
     });

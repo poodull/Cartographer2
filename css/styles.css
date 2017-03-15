@@ -130,6 +130,10 @@
     background-image: url("../images/zoom.png");
 }
 
+.zoomOutSelect {
+    background-image: url("../images/zoomOut.png");
+}
+
 .ui-icon {
     height:40px;
     width: 39px;

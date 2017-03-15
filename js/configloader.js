@@ -395,11 +395,6 @@ function loadDevice(device, x, y, floorID) {
 
     var deviceMesh = new THREE.Mesh(geometry, material);
 
-    var point = lastTouchPoint();
-    if (typeof point == "undefined") {
-        point = getTouchPoint(x, y);
-    }
-
     deviceMesh.position.x = typeof point == "undefined" ? x : point.x;
     deviceMesh.position.y = typeof point == "undefined" ? y : point.y;
     deviceMesh.position.z = typeof point == "undefined" ? 0 : point.z; // Floor altitude + height of mesh.

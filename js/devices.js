@@ -27,8 +27,12 @@ function addDevice (x, y) {
                         alert("duplicate ID");
                     }
                     else {
+                        var point = lastTouchPoint();
+                        if (typeof point == "undefined") {
+                            point = getTouchPoint(x, y);
+                        }
                         //Create the device, if no duplicates
-                        loadDevice(device, x, y, selectedFloor.id);
+                        loadDevice(device, point.x, point.y, selectedFloor.id);
                         device.mesh.scale.setLength(10);
                         device.mesh.deviceOutline.scale.setLength(12);
                         scene.add(device.mesh);
@@ -37,6 +41,7 @@ function addDevice (x, y) {
                         $('#addDeviceMenu').dialog("close");
                         container.style.cursor = "default";
                         refreshDevices();
+                        saveConfig(true);
                     }
                 }
                 container.style.cursor = "default";

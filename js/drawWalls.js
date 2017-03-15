@@ -118,10 +118,10 @@ function commitPoly(){
 
 
 //initgrid function Cartographer
-function createPlane(){
+function createPlane() {
     var index = 0;
-    if(_floors.selectedFloorIndex > 0){
-        index = _floors.selectedFloorIndex||0;
+    if (_floors.selectedFloorIndex > 0) {
+        index = _floors.selectedFloorIndex || 0;
     }
 
     var selectedFloor = _floors.floorData[index];
@@ -141,12 +141,13 @@ function createPlane(){
     plane.name = "plane";
     scene.add(plane);
 
-
-    selectedFloor.gridData = {
-        'polys': [],
-        'plane': plane,
-        'cubeSize': _cubeSize
-    };
+    if (typeof selectedFloor.gridData === "undefined" || typeof selectedFloor.gridData.devices === "undefined") {
+        selectedFloor.gridData = {
+            'polys': [],
+            'plane': plane,
+            'cubeSize': _cubeSize
+        };
+    }
 }
 
 function onDocumentMouseMoveDraw(event){
@@ -183,6 +184,7 @@ function onDocumentMouseMoveDraw(event){
 function onDocumentMouseUpDraw(){
     if(typeof _selectedDragDevice !== "undefined" ){
         _selectedDragDevice = undefined;
+        saveConfig (true);
     }
 }
 
