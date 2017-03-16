@@ -33,6 +33,16 @@ function initCursorVoxel(cursorSize){
     scene.add(_cursorVoxel);
 }
 
+function stopDrawWall() {
+    $.each(_tempCubes , function(i , cube){
+        scene.remove(cube);
+    });
+    scene.remove(_tempLine);
+    scene.remove(_cursorVoxel);
+    _tempCubes = [];
+    _tempLine = undefined;
+}
+
 function onDocumentMouseDownDraw(event){
     event.preventDefault();
 
@@ -53,11 +63,9 @@ function onDocumentMouseDownDraw(event){
         //console.log('voxel' , voxel);
 
         if(drawModeRun   == true){
-            drawModeRun=false;
-
+            drawModeRun = false;
             redrawLine();
             commitPoly();
-
             return false;
         }
         drawModeRun=true;
@@ -72,7 +80,9 @@ function onDocumentMouseDownDraw(event){
 }
 
 function redrawLine() {
-    if(_tempCubes.length < 1)return false;
+    if(_tempCubes.length < 1) {
+        return false;
+    }
 
     if (_tempLine !== undefined) {
         scene.remove(_tempLine);
@@ -87,7 +97,7 @@ function redrawLine() {
         endPoint = snapPoint(_tempCubes[i].position, _cubeSize);
         geometry.vertices.push(endPoint);
     }
-    if (1){//_drawMode.mode === ControlModes.DrawPoly && typeof endPoint !== "undefined") {
+    if (_drawMode.mode === ControlModes.DrawPoly && typeof endPoint !== "undefined") {
         endPoint = snapXYZ(_drawMode.selectedObject.point.x, _drawMode.selectedObject.point.y, z, _cubeSize);
         geometry.vertices.push(endPoint);
     }
@@ -112,6 +122,7 @@ function commitPoly(){
     };
 
     _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
+    saveConfig(true);
     _tempCubes = [];
     _tempLine=undefined;
 }
@@ -242,6 +253,22 @@ function selectRect(){
     });
     var mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
+}
+
+function loadWalls(polys) {
+    var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
+    if (polys.length) {
+        $.each(polys, function (i, poly) {
+            $.each(poly.points, function (i, point) {
+                var snpoint = snapXYZ(point.x, point.y, z, _cubeSize);
+                var voxel = createVoxelAt(snpoint);
+                scene.add(voxel);
+                _tempCubes.push(voxel)
+            });
+            redrawLine();
+            commitPoly();
+        });
+    }
 }
 
 function snapXYZ(x, y, z, gridSize) {

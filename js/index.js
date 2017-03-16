@@ -69,13 +69,17 @@ function init() {
 
     setTimeout(function(){
         createPlane();
-        container.addEventListener('mousedown', onDocumentMouseDownDraw, false);
-        container.addEventListener('mouseup', onDocumentMouseUpDraw, false);
-        container.addEventListener('mousemove', onDocumentMouseMoveDraw, false);
+        bindDrawEvent();
         //initDrawLine();
         //createVoxelAt();
         //redrawLine();
     } , 1000);
+}
+
+function bindDrawEvent () {
+    container.addEventListener('mousedown', onDocumentMouseDownDraw, false);
+    container.addEventListener('mouseup', onDocumentMouseUpDraw, false);
+    container.addEventListener('mousemove', onDocumentMouseMoveDraw, false);
 }
 
 var _allCubes=[],_tempCubes=[], _cubeSize=5, _tempLine, _cursorVoxel, drawModeRun=false, _selectedDragDevice, lastMouseClick;
@@ -199,8 +203,8 @@ function bindListeners () {
         _drawMode.mode = ControlModes.EditDevice;
     });
     $('.zoomOutSelect').click(function () {
-        var canvas = $('canvas')[0];
-        canvas.addEventListener('mouseWheel', updateZoom(-0.1), false);
+        var delta = -120;
+        updateZoom(delta);
     });
     container.addEventListener('mousedown', function () {
         onMouseDown(event);

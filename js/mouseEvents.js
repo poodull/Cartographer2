@@ -17,59 +17,12 @@ function onMouseDown (e) {
             $("#editDeviceMenu").dialog('open');
             editDevice();
             break;
-        case ControlModes.SetOrigin:
-            raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
-            var intersects = raycaster.intersectObject(plane, true);
-
-            if (intersects.length > 0) {
-                var floor = _floors.floorData[_floors.selectedFloorIndex];
-
-                // Origin is always 0,0 so the floor image moves.
-                floor.mesh.position.x -= intersects[0].point.x;
-                floor.mesh.position.y -= intersects[0].point.y;
-
-                // Also calculate the new origin in pixels (which may be needed when loading this floor from a file again).
-                floor.originXPx = floor.building_offset_x - floor.mesh.position.x + (floor.imageWidthPx / 2);
-                floor.originYPx = floor.mesh.position.y - floor.building_offset_y + (floor.imageHeightPx / 2);
-
-                // Recalculate locations of all devices on this floor.
-                _devices.deviceList.forEach(function (device) {
-                    if (device.mesh.floorID === floor.id) {
-                        device.mesh.position.x -= intersects[0].point.x;
-                        device.mesh.position.y -= intersects[0].point.y;
-                        device.mesh.deviceOutline.position.copy(device.mesh.position);
-                    }
-                });
-
-                // Recalculate locations of polys. NOTE that since poly cubes are meant to snap to a discrete voxel,
-                // each poly may shift a little.
-                floor.gridData.polys.forEach(function (poly) {
-                    poly.cubes.forEach(function (cube) {
-                        cube.position.x -= intersects[0].point.x;
-                        cube.position.y -= intersects[0].point.y;
-                        var pos = snapPoint(cube.position, _cubeSize);
-                        cube.position.copy(pos);
-                    });
-
-                    selectPoly(poly.polyId);
-                    redrawLine();
-                    commitPoly(false);
-                });
-
-                initGrid(floor.mesh.position.x, floor.mesh.position.y, floor.gridData.originZ, floor.imageWidthPx, floor.imageHeightPx,
-                    floor.gridData.cubeSize, floor.gridData.polys, floor.gridData.plane);
-            }
-            break;
     }
 }
 
-var zoomLevel = 1;
-
-function updateZoom (zoom) {
-    var canvas = $('canvas');
-    var context = canvas[0].getContext("2d");
-    zoomLevel += zoom;
-    context.scale(zoomLevel,zoomLevel);
+function updateZoom () {
+    event.wheelDelta = -40;
+    $('canvas').trigger('mousewheel');
 }
 
 function showLocation() {
@@ -122,9 +75,14 @@ function onDocumentKeyDown(e) {
     var keyevent = window.event ? event : e;
     switch (keyevent.keyCode) {
         case 27:
-            $(".subMenu").children().removeClass('active');
-            container.style.cursor = "default";
-            _drawMode.mode = '';
+            if (_drawMode.mode == ControlModes.DrawPoly && _tempLine) {
+                stopDrawWall();
+                drawModeRun = false;
+            } else {
+                $(".subMenu").children().removeClass('active');
+                container.style.cursor = "default";
+                _drawMode.mode = '';
+            }
             break;
     }
 }
