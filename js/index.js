@@ -73,7 +73,7 @@ function init() {
         //initDrawLine();
         //createVoxelAt();
         //redrawLine();
-    } , 1000);
+    } , 2000);
 }
 
 function bindDrawEvent () {
@@ -189,6 +189,9 @@ function bindListeners () {
     $('#originFloorImage').click(function () {
         container.style.cursor = "crosshair";
         _drawMode.mode = ControlModes.SetOrigin;
+    });
+    $('#scaleFloorImage').click(function () {
+        _drawMode.mode = ControlModes.SetScale;
     });
     $('#deviceContainerClose').click(function () {
         $('.deviceMenu').attr('hidden', true);
