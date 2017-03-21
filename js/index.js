@@ -172,6 +172,15 @@ function bindListeners () {
         }
     });
 
+    $('.selectWalls').click( function () {
+        _drawMode.mode = ControlModes.Select;
+
+    });
+
+    $('.deleteWalls').click( function () {
+        removeSelectedPoly();
+    });
+
     $('.device').click(function () {
         $('#deviceMenu')[0].removeAttribute('hidden');
         refreshDevices();
@@ -206,8 +215,10 @@ function bindListeners () {
         _drawMode.mode = ControlModes.EditDevice;
     });
     $('.zoomOutSelect').click(function () {
-        var delta = -120;
-        updateZoom(delta);
+        updateZoom(true, 0.95);
+    });
+    $('.zoomSelect').click(function () {
+        updateZoom(false, 0.95);
     });
     container.addEventListener('mousedown', function () {
         onMouseDown(event);

@@ -16,13 +16,15 @@ var ControlModes = {
     DrawPoly: 'drawPoly',
     Select: 'select'
 };
+var _tempScaleCube = [], selectDrawBox = false;
+var _tempScaleLine, _tempSelectLine, _tempSelectCubes=[];
 
-function initDrawLine(){
+function initDrawLine () {
     initCursorVoxel(_cubeSize);
     createPlane();
 }
 
-function initCursorVoxel(cursorSize){
+function initCursorVoxel(cursorSize) {
     _cursorVoxel = new THREE.Mesh(new THREE.CubeGeometry(cursorSize, cursorSize, cursorSize), new THREE.MeshBasicMaterial({
         transparent: true,
         opacity: .5,
@@ -33,7 +35,7 @@ function initCursorVoxel(cursorSize){
     scene.add(_cursorVoxel);
 }
 
-function stopDrawWall() {
+function stopDrawWall () {
     $.each(_tempCubes , function(i , cube){
         scene.remove(cube);
     });
@@ -43,9 +45,7 @@ function stopDrawWall() {
     _tempLine = undefined;
 }
 
-_tempScaleCube = [];
-
-function onDocumentMouseDownDraw(event){
+function onDocumentMouseDownDraw (event) {
     event.preventDefault();
 
     lastMouseClick = getTouchPoint(event.clientX , event.clientY);
@@ -65,15 +65,47 @@ function onDocumentMouseDownDraw(event){
             _tempCubes.push(voxel);
             //console.log('voxel' , voxel);
 
-            if(drawModeRun   == true){
-                drawModeRun=false;
+            if(drawModeRun == true){
+                drawModeRun = false;
                 redrawLine();
+                commitPoly();
                 commitPoly();
 
                 return false;
             }
-            drawModeRun=true;
+            drawModeRun = true;
         break;
+
+        case ControlModes.Select:
+            if (selectDrawBox) {
+                scene.remove(_tempSelectLine);
+                scene.remove(_cursorVoxel);
+
+                $.each(_tempSelectCubes , function(i ,cube){
+                    scene.remove(cube);
+                });
+
+                _tempSelectCubes=[];
+                _tempSelectLine = "undefined";
+                selectDrawBox = false;
+            } else {
+                initCursorVoxel(_cubeSize);
+            }
+
+            var intersects = raycaster.intersectObjects(_allCubes.concat((_tempSelectCubes.concat([plane]))), true);
+            _drawMode.selectedObject = intersects[0];
+
+            var voxel = createVoxelAt(_drawMode.selectedObject.point , "silver");
+            scene.add(voxel);
+
+            _tempSelectCubes.push(voxel);
+
+            if(_tempSelectCubes.length > 1){
+                scene.remove(_tempSelectLine);
+                drawSelectWall(intersects[0]);
+                selectDrawBox = true;
+            }
+            break;
 
         case ControlModes.MoveDevice:
             var intersects = raycaster.intersectObjects(_devices.meshList.concat(plane), true);
@@ -93,7 +125,7 @@ function onDocumentMouseDownDraw(event){
         break;
 
         case ControlModes.SetScale:
-            initCursorVoxel();
+            initCursorVoxel(_cubeSize);
 
             var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
             _drawMode.selectedObject =intersects[0];
@@ -109,7 +141,58 @@ function onDocumentMouseDownDraw(event){
 }
 }
 
-function selectPoly(id) {
+function removeSelectedPoly () {
+    if(_tempSelectCubes.length !== 2)return false;
+
+    var  tpLeft ,btRight,z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
+    if(_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
+        && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y ){
+        tpLeft =_tempSelectCubes[1].position;
+        btRight =_tempSelectCubes[0].position;
+    }else if(_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
+        && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y ){
+        tpLeft =_tempSelectCubes[0].position;
+        btRight =_tempSelectCubes[1].position;
+    }else if(_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
+        && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y ){
+
+        tpLeft = snapXYZ(_tempSelectCubes[1].position.x, _tempSelectCubes[0].position.y, z, _cubeSize);
+        btRight = snapXYZ(_tempSelectCubes[0].position.x, _tempSelectCubes[1].position.y, z, _cubeSize);
+    }else if(_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
+        && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y ){
+
+        tpLeft = snapXYZ(_tempSelectCubes[0].position.x, _tempSelectCubes[1].position.y, z, _cubeSize);
+        btRight = snapXYZ(_tempSelectCubes[1].position.x, _tempSelectCubes[0].position.y, z, _cubeSize);
+
+    }
+    var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+    for (var i = 0; i < polys.length; i++) {
+        var inP=false;
+        for (var j = 0; j < polys[i].cubes.length; j++) {
+            var cube = polys[i].cubes[j];
+            inP = checkBound(cube.position , tpLeft,btRight);
+            if(inP === false )break;
+        }
+
+        if(inP == true){
+            scene.remove(polys[i].line);
+            $.each(polys[i].cubes , function(i, cube){
+                scene.remove(cube);
+            });
+            polys.splice(i,1);
+            saveConfig(true);
+        }
+    }
+}
+
+function checkBound (point, tpLeft , btRight) {
+    if( tpLeft.x <= point.x && point.x <= btRight.x && tpLeft.y <= point.y && point.y <= btRight.y ) {
+        return true;
+    }
+    return false;
+}
+
+function selectPoly (id) {
     
     var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     _selectedPoly = findPoly(id);
@@ -136,48 +219,7 @@ function findPoly(id) {
     return undefined;
 }
 
-
-
-function setNewOrigin(intersects){
-    var floor = _floors.floorData[_floors.selectedFloorIndex];
-
-    // Origin is always 0,0 so the floor image moves.
-    floor.mesh.position.x -= intersects[0].point.x;
-    floor.mesh.position.y -= intersects[0].point.y;
-
-    floor.originXPx = floor.building_offset_x - floor.mesh.position.x + (floor.imageWidthPx / 2);
-    floor.originYPx = floor.mesh.position.y - floor.building_offset_y + (floor.imageHeightPx / 2);
-
-
-    _devices.deviceList.forEach(function (device, index, list) {
-        if (device.mesh.floorID === floor.id) {
-            device.mesh.position.x -= intersects[0].point.x;
-            device.mesh.position.y -= intersects[0].point.y;
-            device.mesh.deviceOutline.position.copy(device.mesh.position);
-        }
-    });
-
-    
-    var polys =  [].concat(floor.gridData.polys);
-    polys.forEach(function (poly, index, list) {
-        //scene.remove(poly.line);
-        // debugger;
-        poly.cubes.forEach(function (cube, index, list) {
-            cube.position.x -= intersects[0].point.x;
-            cube.position.y -= intersects[0].point.y;
-            var pos = snapPoint(cube.position, _cubeSize);
-            cube.position.copy(pos);
-        });
-
-        selectPoly(poly.polyId);
-        redrawLine();
-        floor.gridData.polys[index].line = _tempLine;
-    });
-    createPlane();
-
-}
-
-function redrawLine() {
+function redrawLine () {
     if(_tempCubes.length < 1) {
         return false;
     }
@@ -210,7 +252,7 @@ function redrawLine() {
     scene.add(_tempLine);
 }
 
-function commitPoly(){
+function commitPoly () {
     // scene.add(_tempLine);
     var poly = {
         polyId: _tempCubes[0].id,
@@ -227,7 +269,7 @@ function commitPoly(){
 
 
 //initgrid function Cartographer
-function createPlane() {
+function createPlane () {
     var index = 0;
     if (_floors.selectedFloorIndex > 0) {
         index = _floors.selectedFloorIndex || 0;
@@ -259,9 +301,7 @@ function createPlane() {
     }
 }
 
-var _tempScaleLine;
-
-function onDocumentMouseMoveDraw(event){
+function onDocumentMouseMoveDraw (event) {
     event.preventDefault();
     //_cursorVoxel.visible = false;
 
@@ -273,7 +313,7 @@ function onDocumentMouseMoveDraw(event){
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
     var intersects = raycaster.intersectObject(plane, true);
     if (intersects.length > 0) {
-        if(_drawMode.mode == ControlModes.DrawPoly){
+        if (_drawMode.mode == ControlModes.DrawPoly) {
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             _cursorVoxel.position.x = point.x;
             _cursorVoxel.position.y = point.y;
@@ -284,11 +324,25 @@ function onDocumentMouseMoveDraw(event){
 
             if(_tempCubes.length < 1)return false;
             redrawLine();
-        }else if(typeof _selectedDragDevice !== "undefined" ){
+        } else if(_drawMode.mode == ControlModes.Select &&  _tempSelectCubes.length) {
+            // _tempSelectCubes
+            //debugger;
+            if(selectDrawBox)return false;
+            if( _tempSelectLine !== "undefined"){
+                scene.remove(_tempSelectLine);
+            }
+            var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
+            _cursorVoxel.position.x = point.x;
+            _cursorVoxel.position.y = point.y;
+            _cursorVoxel.position.z = point.z;
+            _cursorVoxel.visible = true;
+
+            drawSelectWall(intersects[0]);
+        } else if (typeof _selectedDragDevice !== "undefined") {
             var offset = new THREE.Vector3();
             _selectedDragDevice.position.copy(intersects[0].point.sub(offset));
             _selectedDragDevice.deviceOutline.position.copy(intersects[0].point.sub(offset));
-        }else if(_drawMode.mode == ControlModes.SetScale ){
+        } else if(_drawMode.mode == ControlModes.SetScale) {
             if(_tempScaleCube.length < 1)return false;
 
             if(_tempScaleLine !== "undefined"){
@@ -331,9 +385,9 @@ function onDocumentMouseMoveDraw(event){
     }
 }
 
-function onDocumentMouseUpDraw(){
-    if(_drawMode.mode == ControlModes.SetScale){
-        if(_tempScaleCube.length  && typeof _tempScaleLine !== "undefined"){
+function onDocumentMouseUpDraw() {
+    if (_drawMode.mode == ControlModes.SetScale) {
+        if (_tempScaleCube.length && typeof _tempScaleLine !== "undefined") {
             var distanceX = Math.abs(_tempScaleCube[0].position.x - _tempScaleCube[1].position.x);
             var distanceY = Math.abs(_tempScaleCube[0].position.y - _tempScaleCube[1].position.y);
             var distancePx = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
@@ -344,8 +398,8 @@ function onDocumentMouseUpDraw(){
 
             scene.remove(_tempScaleLine);
 
-            _tempScaleCube=[];
-            _tempScaleLine= undefined;
+            _tempScaleCube = [];
+            _tempScaleLine = undefined;
 
             //jquery dialoge not working
             // var dialog = $('#frmScale');
@@ -354,40 +408,55 @@ function onDocumentMouseUpDraw(){
 
             var distance = prompt("Distance in meters : ", "");
             if (distance != null) {
-                setNewScale(distance ,distancePx);
+                setNewScale(distance, distancePx);
             }
         }
-    }else if(typeof _selectedDragDevice !== "undefined" ){
+    } else if (typeof _selectedDragDevice !== "undefined") {
         _selectedDragDevice = undefined;
-        saveConfig (true);
-}
-}
-
-function setNewScale(distance ,distancePx ){
-    var floor = _floors.floorData[_floors.selectedFloorIndex];
-    var oldScale = floor.scale;
-    var newScale = distancePx / distance;
-
-    floor.scale = newScale; // Appearance of floor in canvas is unchanged.
-    /*
-    initGrid(floor.mesh.position.x, floor.mesh.position.y, floor.gridData.originZ, floor.mesh.geometry.parameters.width, floor.mesh.geometry.parameters.height,
-             5 / floor.scale, floor.gridData.polys, floor.gridData.plane);
-    var ctrl = CARTOGRAPHER.Controller;
-    // Cube positions may have shifted after the scale change, so the line needs to be redrawn.
-    floor.gridData.polys.forEach(function (poly) {
-        ctrl.selectPoly(poly.polyId);
-        ctrl.redrawLine();
-        ctrl.commitPoly(false);
-    });
-    _gui.FloorEditorValues.refresh();
-    */
+        saveConfig(true);
+    }
 }
 
-function lastTouchPoint(){
+function drawSelectWall (selectedObject) {
+    var geometry = new THREE.Geometry();
+    var material = new THREE.LineBasicMaterial({color: "silver"});    // Default line color. Should be set to the poly's color or the color of the cubes.
+    var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
+    var endPoint;
+
+    //point one
+    var endPointFirst = snapPoint(_tempSelectCubes[0].position, _cubeSize);
+    geometry.vertices.push(endPointFirst);
+
+    //point three
+    endPoint = snapXYZ(_tempSelectCubes[0].position.x, selectedObject.point.y, z, _cubeSize);
+    geometry.vertices.push(endPoint);
+
+    //point two
+    endPoint = snapXYZ(selectedObject.point.x, selectedObject.point.y, z, _cubeSize);
+    geometry.vertices.push(endPoint);
+
+
+    //point four
+    endPoint = snapXYZ(selectedObject.point.x, _tempSelectCubes[0].position.y,  z, _cubeSize);
+    geometry.vertices.push(endPoint);
+
+    geometry.vertices.push(endPointFirst);
+
+
+    if (_tempSelectCubes.length > 0){
+        material.color = _tempSelectCubes[0].material.color;
+    }
+    _tempSelectLine = new THREE.Line(geometry, material);
+    _tempSelectLine.name = "tempSelectLine";
+    scene.add( _tempSelectLine );
+
+}
+
+function lastTouchPoint () {
     return lastMouseClick;
 }
 
-function getTouchPoint(x , y){
+function getTouchPoint (x , y) {
     if( typeof plane == "undefined" ){
         createPlane();
     }
@@ -405,7 +474,7 @@ function getTouchPoint(x , y){
     return  point;
 }
 
-function createVoxelAt(point, color) {
+function createVoxelAt (point, color) {
     var material = new THREE.MeshBasicMaterial({
         transparent: true,
         opacity: 0.5,
@@ -429,7 +498,7 @@ function createVoxelAt(point, color) {
     return voxel;
 }
 
-function selectRect(){
+function selectRect (){
     var geometry = new THREE.PlaneGeometry(2, 1);
     var material = new THREE.MeshBasicMaterial({
         color: 0xDB1E1E
@@ -439,7 +508,7 @@ function selectRect(){
     scene.add(mesh);
 }
 
-function loadWalls(polys) {
+function loadWalls (polys) {
     var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
     if (polys.length) {
         $.each(polys, function (i, poly) {
@@ -455,18 +524,18 @@ function loadWalls(polys) {
     }
 }
 
-function snapXYZ(x, y, z, gridSize) {
+function snapXYZ (x, y, z, gridSize) {
     return new THREE.Vector3(x, y, z)
         .divideScalar(gridSize).floor().multiplyScalar(gridSize).addScalar(gridSize / 2);
 }
 
-function snapPoint(point, gridSize) {
+function snapPoint (point, gridSize) {
     return new THREE.Vector3(point.x, point.y, point.z)
         .divideScalar(gridSize).floor().multiplyScalar(gridSize).addScalar(gridSize / 2);
 }
 
 
-function drawMode() {
+function drawMode () {
     var mode = 0;
     var startX = undefined;
     var startY = undefined;

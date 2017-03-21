@@ -110,6 +110,10 @@
     background-image: url("../images/cut.png");
 }
 
+.selectWalls {
+    background-image: url("../images/selectWall.png");
+}
+
 .addDevice {
     background-image: url("../images/add.png");
 }

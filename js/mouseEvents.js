@@ -20,12 +20,20 @@ function onMouseDown (e) {
     }
 }
 
-function updateZoom () {
-    event.wheelDelta = -40;
-    $('canvas').trigger('mousewheel');
+function updateZoom (isZoomOut, scale) {
+    var startEvent = {type: 'start'};
+    var endEvent = {type: 'end'};
+    if(isZoomOut){
+        controls.constraint.dollyIn(scale);
+    }else{
+        controls.constraint.dollyOut(scale);
+    }
+    controls.update();
+    controls.dispatchEvent(startEvent);
+    controls.dispatchEvent(endEvent);
 }
 
-function showLocation() {
+function showLocation () {
     var intersects = raycaster.intersectObjects(_devices.visibleDevices, true);
     if (intersects.length > 0) {
         if (intersects[0].object != _selectedDevice) {
@@ -71,13 +79,16 @@ function getLocation (device) {
     }
 }
 
-function onDocumentKeyDown(e) {
+function onDocumentKeyDown (e) {
     var keyevent = window.event ? event : e;
     switch (keyevent.keyCode) {
         case 27:
-            if (_drawMode.mode == ControlModes.DrawPoly && _tempLine) {
-                stopDrawWall();
-                drawModeRun = false;
+            if (_drawMode.mode == ControlModes.DrawPoly) {
+                scene.remove(_cursorVoxel);
+                if (_tempLine) {
+                    stopDrawWall();
+                    drawModeRun = false;
+                }
             } else {
                 $(".subMenu").children().removeClass('active');
                 container.style.cursor = "default";
