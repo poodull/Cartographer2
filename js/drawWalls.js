@@ -45,6 +45,19 @@ function stopDrawWall () {
     _tempLine = undefined;
 }
 
+function removeSelectWall () {
+    scene.remove(_tempSelectLine);
+    scene.remove(_cursorVoxel);
+
+    $.each(_tempSelectCubes, function (i, cube) {
+        scene.remove(cube);
+    });
+
+    _tempSelectCubes = [];
+    _tempSelectLine = "undefined";
+    selectDrawBox = false;
+}
+
 function onDocumentMouseDownDraw (event) {
     event.preventDefault();
 
@@ -69,7 +82,7 @@ function onDocumentMouseDownDraw (event) {
                 drawModeRun = false;
                 redrawLine();
                 commitPoly();
-                
+
                 return false;
             }
             drawModeRun = true;
@@ -77,16 +90,7 @@ function onDocumentMouseDownDraw (event) {
 
         case ControlModes.Select:
             if (selectDrawBox) {
-                scene.remove(_tempSelectLine);
-                scene.remove(_cursorVoxel);
-
-                $.each(_tempSelectCubes , function(i ,cube){
-                    scene.remove(cube);
-                });
-
-                _tempSelectCubes=[];
-                _tempSelectLine = "undefined";
-                selectDrawBox = false;
+                removeSelectWall();
             } else {
                 initCursorVoxel(_cubeSize);
             }
@@ -182,12 +186,7 @@ function removeSelectedPoly () {
             saveConfig(true);
         }
     }
-    scene.remove( _tempSelectLine);
-    scene.remove(_cursorVoxel);
-
-    $.each(_tempSelectCubes , function(i ,cube){
-        scene.remove(cube);
-    });
+    removeSelectWall();
 }
 
 function checkBound (point, tpLeft , btRight) {
@@ -252,7 +251,7 @@ function redrawLine () {
         var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
         var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
         var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
-        console.log(distO , dist);
+        //console.log(distO , dist);
     }
 
     if (_tempCubes.length > 0)
@@ -265,7 +264,6 @@ function redrawLine () {
 }
 
 function commitPoly () {
-    // scene.add(_tempLine);
     var poly = {
         polyId: _tempCubes[0].id,
         cubes: _tempCubes,
