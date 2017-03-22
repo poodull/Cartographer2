@@ -214,7 +214,7 @@ function loadConfig(file, newFile) {
                 loadDefaultFloor();
             }
 
-            if (typeof config.floors[0].walls !== "undefined") {
+            if (config.floors[0] && typeof config.floors[0].walls !== "undefined") {
                 loadWalls(config.floors[0].walls);
              }
 

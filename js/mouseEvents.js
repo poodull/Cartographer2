@@ -79,20 +79,25 @@ function getLocation (device) {
     }
 }
 
+function removeMode () {
+    $(".subMenu").children().removeClass('active');
+    container.style.cursor = "default";
+    _drawMode.mode = '';
+}
+
 function onDocumentKeyDown (e) {
     var keyevent = window.event ? event : e;
     switch (keyevent.keyCode) {
         case 27:
-            if (_drawMode.mode == ControlModes.DrawPoly) {
+            if (_drawMode.mode == ControlModes.DrawPoly && _tempLine) {
                 scene.remove(_cursorVoxel);
-                if (_tempLine) {
-                    stopDrawWall();
-                    drawModeRun = false;
-                }
+                stopDrawWall();
+                drawModeRun = false;
+            } else if (_drawMode.mode == ControlModes.DrawPoly) {
+                scene.remove(_cursorVoxel);
+                removeMode();
             } else {
-                $(".subMenu").children().removeClass('active');
-                container.style.cursor = "default";
-                _drawMode.mode = '';
+                removeMode();
             }
             break;
     }

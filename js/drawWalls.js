@@ -69,8 +69,7 @@ function onDocumentMouseDownDraw (event) {
                 drawModeRun = false;
                 redrawLine();
                 commitPoly();
-                commitPoly();
-
+                
                 return false;
             }
             drawModeRun = true;
@@ -183,6 +182,12 @@ function removeSelectedPoly () {
             saveConfig(true);
         }
     }
+    scene.remove( _tempSelectLine);
+    scene.remove(_cursorVoxel);
+
+    $.each(_tempSelectCubes , function(i ,cube){
+        scene.remove(cube);
+    });
 }
 
 function checkBound (point, tpLeft , btRight) {
@@ -231,17 +236,24 @@ function redrawLine () {
     var geometry = new THREE.Geometry();
     var material = new THREE.LineBasicMaterial({color: "silver"});    // Default line color. Should be set to the poly's color or the color of the cubes.
     var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
-    var endPoint;
+    var endPoint, firstPoint;
 
     for (var i = 0; i < _tempCubes.length; i++) {
         endPoint = snapPoint(_tempCubes[i].position, _cubeSize);
         geometry.vertices.push(endPoint);
+        firstPoint = firstPoint || endPoint;
     }
     if (_drawMode.mode === ControlModes.DrawPoly && typeof endPoint !== "undefined") {
         endPoint = snapXYZ(_drawMode.selectedObject.point.x, _drawMode.selectedObject.point.y, z, _cubeSize);
         geometry.vertices.push(endPoint);
     }
-    // console.log(geometry.vertices.length);
+
+    if (typeof firstPoint !== "undefined") {
+        var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
+        var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
+        var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
+        console.log(distO , dist);
+    }
 
     if (_tempCubes.length > 0)
         material.color = _tempCubes[0].material.color;
@@ -303,9 +315,7 @@ function createPlane () {
 
 function onDocumentMouseMoveDraw (event) {
     event.preventDefault();
-    //_cursorVoxel.visible = false;
 
-    //loadDefaultFloor();
     _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
     _drawMode.mouseY = -((event.clientY - container.offsetTop) / renderer.domElement.clientHeight) * 2 + 1;
 
@@ -325,8 +335,6 @@ function onDocumentMouseMoveDraw (event) {
             if(_tempCubes.length < 1)return false;
             redrawLine();
         } else if(_drawMode.mode == ControlModes.Select &&  _tempSelectCubes.length) {
-            // _tempSelectCubes
-            //debugger;
             if(selectDrawBox)return false;
             if( _tempSelectLine !== "undefined"){
                 scene.remove(_tempSelectLine);
@@ -342,10 +350,10 @@ function onDocumentMouseMoveDraw (event) {
             var offset = new THREE.Vector3();
             _selectedDragDevice.position.copy(intersects[0].point.sub(offset));
             _selectedDragDevice.deviceOutline.position.copy(intersects[0].point.sub(offset));
-        } else if(_drawMode.mode == ControlModes.SetScale) {
-            if(_tempScaleCube.length < 1)return false;
+        } else if (_drawMode.mode == ControlModes.SetScale) {
+            if (_tempScaleCube.length < 1)return false;
 
-            if(_tempScaleLine !== "undefined"){
+            if (_tempScaleLine !== "undefined") {
                 scene.remove(_tempScaleLine);
             }
 
@@ -354,30 +362,23 @@ function onDocumentMouseMoveDraw (event) {
             _cursorVoxel.position.y = point.y;
             _cursorVoxel.position.z = point.z;
             _cursorVoxel.visible = true;
-
             _drawMode.selectedObject = intersects[0];
-            
 
             var geometry = new THREE.Geometry();
             var material = new THREE.LineBasicMaterial({color: "silver"});    // Default line color. Should be set to the poly's color or the color of the cubes.
             var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
             var endPoint;
 
-
             endPoint = snapPoint(_tempScaleCube[0].position, _cubeSize);
             geometry.vertices.push(endPoint);
             
             endPoint = snapXYZ(_drawMode.selectedObject.point.x, _drawMode.selectedObject.point.y, z, _cubeSize);
             geometry.vertices.push(endPoint);
-            
 
-            
-            // console.log(geometry.vertices.length);
-
-            if (_tempScaleCube.length > 0)
+            if (_tempScaleCube.length > 0) {
                 material.color = _tempScaleCube[0].material.color;
+            }
 
-            // console.log(_tempLine);
             _tempScaleLine = new THREE.Line(geometry, material);
             _tempScaleLine.name = "tempScaleLine";
             scene.add( _tempScaleLine );
@@ -395,7 +396,6 @@ function onDocumentMouseUpDraw() {
             //remove allscene
             scene.remove(_tempScaleCube[0]);
             scene.remove(_tempScaleCube[1]);
-
             scene.remove(_tempScaleLine);
 
             _tempScaleCube = [];

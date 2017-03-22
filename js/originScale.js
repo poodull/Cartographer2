@@ -20,7 +20,6 @@ function setNewOrigin (intersects) {
         }
     });
 
-
     var polys =  [].concat(floor.gridData.polys);
     polys.forEach(function (poly, index, list) {
         poly.cubes.forEach(function (cube, index, list) {
@@ -45,8 +44,8 @@ function setNewScale (distance ,distancePx) {
     floor.scale = newScale; // Appearance of floor in canvas is unchanged.
     saveConfig(true);
 
-    if (typeof localStorage !== "undefined")
+    if (typeof localStorage !== "undefined") {
         config = localStorage.getItem("config");
-
-    loadConfig(new Blob([config], { type: "text/plain;charset=utf-8" }));
+        loadConfig(new Blob([config], { type: "text/plain;charset=utf-8" }));
+    }
 }

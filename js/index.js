@@ -97,13 +97,22 @@ $('a.myButton').click(function() {
     }
     $(this).siblings().removeClass('active');
     $(this).addClass('active');
+    $('.toolbox-tools').attr('hidden', true);
+    $('.deviceMenu').attr('hidden', true);
 });
 }
 
 function bindListeners () {
     document.onkeydown = onDocumentKeyDown;
 
-    $('a.subMenuButton.penWalls, a.subMenuButton.cutWalls, a.subMenuButton.deleteWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice').click(function() {
+    $('a.subMenuButton').click(function() {
+        container.style.cursor = "default";
+        $(this).siblings().removeClass('active');
+        $('.toolbox-tools').attr('hidden', true);
+        $('.deviceMenu').attr('hidden', true);
+    });
+
+    $('a.subMenuButton.penWalls, a.subMenuButton.selectWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice, a.subMenuButton.originFloorImage, a.subMenuButton.scaleFloorImage').click(function() {
         container.style.cursor = "default";
         $(this).siblings().removeClass('active');
         $(this).addClass('active');
@@ -174,7 +183,6 @@ function bindListeners () {
 
     $('.selectWalls').click( function () {
         _drawMode.mode = ControlModes.Select;
-
     });
 
     $('.deleteWalls').click( function () {
@@ -214,6 +222,11 @@ function bindListeners () {
         controls.mouseButtons.ORBIT = -1;
         _drawMode.mode = ControlModes.EditDevice;
     });
+    $('.panSelect').click(function () {
+        var panStart = new THREE.Vector2();
+        panStart.set(event.clientX, event.clientY);
+        container.addEventListener('mousemove', mouseMove, false);
+    });
     $('.zoomOutSelect').click(function () {
         updateZoom(true, 0.95);
     });
@@ -249,6 +262,21 @@ function bindListeners () {
             }
         });
     }
+}
+
+function mouseMove() {
+    var startEvent = {type: 'start'};
+    var panEnd = new THREE.Vector2();
+    var panDelta = new THREE.Vector2();
+    var panStart = new THREE.Vector2();
+    panEnd.set(event.clientX, event.clientY);
+    panDelta.subVectors(panEnd, panStart);
+
+    controls.constraint.pan(panDelta.x, panDelta.y);
+
+    panStart.copy(panEnd);
+    controls.dispatchEvent(startEvent);
+
 }
 
 function animate () {
