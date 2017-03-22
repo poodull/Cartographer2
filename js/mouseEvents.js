@@ -93,8 +93,11 @@ function onDocumentKeyDown (e) {
                 scene.remove(_cursorVoxel);
                 stopDrawWall();
                 drawModeRun = false;
+            } else if (_drawMode.mode == ControlModes.Select && _tempSelectLine) {
+                removeSelectWall();
             } else if (_drawMode.mode == ControlModes.Select) {
                 removeSelectWall();
+                removeMode();
             } else if (_drawMode.mode == ControlModes.DrawPoly) {
                 scene.remove(_cursorVoxel);
                 removeMode();

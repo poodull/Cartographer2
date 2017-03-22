@@ -54,8 +54,7 @@ function removeSelectWall () {
     });
 
     _tempSelectCubes = [];
-    _tempSelectLine = "undefined";
-    selectDrawBox = false;
+    _tempSelectLine = undefined;
 }
 
 function onDocumentMouseDownDraw (event) {
@@ -68,7 +67,7 @@ function onDocumentMouseDownDraw (event) {
 
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
 
-    switch(_drawMode.mode ){
+    switch (_drawMode.mode ) {
         case ControlModes.DrawPoly:
             var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
             _drawMode.selectedObject =intersects[0];
@@ -91,6 +90,7 @@ function onDocumentMouseDownDraw (event) {
         case ControlModes.Select:
             if (selectDrawBox) {
                 removeSelectWall();
+                selectDrawBox = false;
             } else {
                 initCursorVoxel(_cubeSize);
             }
@@ -137,11 +137,9 @@ function onDocumentMouseDownDraw (event) {
             scene.add(voxel);
             _tempScaleCube.push(voxel);
         break;
-
         default:
         break;
-
-}
+    }
 }
 
 function removeSelectedPoly () {
