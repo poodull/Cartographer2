@@ -2,21 +2,23 @@
  * Created by Vamsi on 3/3/2017.
  */
 function onMouseDown (e) {
-    e.preventDefault();
+    if (e.button == 0) {
+        e.preventDefault();
 
-    switch (_drawMode.mode) {
-        case ControlModes.AddDevice:
-            $('#addDeviceMenu').dialog('open');
-            var $div = $(e.target);
-            var offset = $div.offset();
-            var x = e.clientX - offset.left;
-            var y = e.clientY - offset.top;
-            addDevice(x, y);
-            break;
-        case ControlModes.EditDevice:
-            $("#editDeviceMenu").dialog('open');
-            editDevice();
-            break;
+        switch (_drawMode.mode) {
+            case ControlModes.AddDevice:
+                $('#addDeviceMenu').dialog('open');
+                var $div = $(e.target);
+                var offset = $div.offset();
+                var x = e.clientX - offset.left;
+                var y = e.clientY - offset.top;
+                addDevice(x, y);
+                break;
+            case ControlModes.EditDevice:
+                $("#editDeviceMenu").dialog('open');
+                editDevice();
+                break;
+        }
     }
 }
 

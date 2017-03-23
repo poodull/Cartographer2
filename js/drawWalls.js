@@ -83,87 +83,87 @@ function removeWall (floor) {
 }
 
 function onDocumentMouseDownDraw (event) {
-    event.preventDefault();
+    if (event.button == 0) {
+        event.preventDefault();
 
-    lastMouseClick = getTouchPoint(event.clientX , event.clientY);
-    //loadDefaultFloor();
-    _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
-    _drawMode.mouseY = -((event.clientY - container.offsetTop) / renderer.domElement.clientHeight) * 2 + 1;
+        lastMouseClick = getTouchPoint(event.clientX, event.clientY);
+        _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
+        _drawMode.mouseY = -((event.clientY - container.offsetTop) / renderer.domElement.clientHeight) * 2 + 1;
 
-    raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
+        raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
 
-    switch (_drawMode.mode ) {
-        case ControlModes.DrawPoly:
-            var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
-            _drawMode.selectedObject =intersects[0];
-            //debugger;
-            var voxel = createVoxelAt(_drawMode.selectedObject.point , CubeColors.properties[_currentPen].hex);
-            scene.add(voxel);
-            _tempCubes.push(voxel);
-            //console.log('voxel' , voxel);
+        switch (_drawMode.mode) {
+            case ControlModes.DrawPoly:
+                var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
+                _drawMode.selectedObject = intersects[0];
+                //debugger;
+                var voxel = createVoxelAt(_drawMode.selectedObject.point, CubeColors.properties[_currentPen].hex);
+                scene.add(voxel);
+                _tempCubes.push(voxel);
 
-            if(drawModeRun == true){
-                drawModeRun = false;
-                redrawLine();
-                commitPoly();
+                if (drawModeRun == true) {
+                    drawModeRun = false;
+                    redrawLine();
+                    commitPoly();
 
-                return false;
-            }
-            drawModeRun = true;
-        break;
+                    return false;
+                }
+                drawModeRun = true;
+                break;
 
-        case ControlModes.Select:
-            if (selectDrawBox) {
-                removeSelectWall();
-                selectDrawBox = false;
-            } else {
+            case ControlModes.Select:
+                if (selectDrawBox) {
+                    removeSelectWall();
+                    selectDrawBox = false;
+                } else {
+                    initCursorVoxel(_cubeSize);
+                }
+
+                var intersects = raycaster.intersectObjects(_allCubes.concat((_tempSelectCubes.concat([plane]))), true);
+                _drawMode.selectedObject = intersects[0];
+
+                var voxel = createVoxelAt(_drawMode.selectedObject.point, "silver");
+                scene.add(voxel);
+
+                _tempSelectCubes.push(voxel);
+
+                if (_tempSelectCubes.length > 1) {
+                    scene.remove(_tempSelectLine);
+                    drawSelectWall(intersects[0]);
+                    selectDrawBox = true;
+                }
+                break;
+
+            case ControlModes.MoveDevice:
+                var intersects = raycaster.intersectObjects(_devices.meshList.concat(plane), true);
+                if (intersects[0].object.name.startsWith("device_")) {
+                    //console.log(intersects[0].object);
+                    _selectedDragDevice = intersects[0].object;
+
+                }
+                break;
+
+            case ControlModes.SetOrigin:
+                var intersects = raycaster.intersectObject(plane, true);
+
+                if (intersects.length > 0) {
+                    setNewOrigin(intersects);
+                }
+                break;
+
+            case ControlModes.SetScale:
                 initCursorVoxel(_cubeSize);
-            }
 
-            var intersects = raycaster.intersectObjects(_allCubes.concat((_tempSelectCubes.concat([plane]))), true);
-            _drawMode.selectedObject = intersects[0];
-
-            var voxel = createVoxelAt(_drawMode.selectedObject.point , "silver");
-            scene.add(voxel);
-
-            _tempSelectCubes.push(voxel);
-
-            if(_tempSelectCubes.length > 1){
-                scene.remove(_tempSelectLine);
-                drawSelectWall(intersects[0]);
-                selectDrawBox = true;
-            }
-            break;
-
-        case ControlModes.MoveDevice:
-            var intersects = raycaster.intersectObjects(_devices.meshList.concat(plane), true);
-            if(intersects[0].object.name.startsWith("device_")){
-                //console.log(intersects[0].object);
-                _selectedDragDevice = intersects[0].object;
-
-            }
-        break;
-
-        case ControlModes.SetOrigin:
-            var intersects = raycaster.intersectObject(plane, true);
-
-            if(intersects.length > 0 ){
-                setNewOrigin(intersects);
-            }
-        break;
-
-        case ControlModes.SetScale:
-            initCursorVoxel(_cubeSize);
-
-            var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
-            _drawMode.selectedObject =intersects[0];
-            //debugger;
-            var voxel = createVoxelAt(_drawMode.selectedObject.point , 'silver');
-            scene.add(voxel);
-            _tempScaleCube.push(voxel);
-        break;
-        default:
-        break;
+                var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
+                _drawMode.selectedObject = intersects[0];
+                //debugger;
+                var voxel = createVoxelAt(_drawMode.selectedObject.point, 'silver');
+                scene.add(voxel);
+                _tempScaleCube.push(voxel);
+                break;
+            default:
+                break;
+        }
     }
 }
 
@@ -171,21 +171,21 @@ function removeSelectedPoly () {
     if(_tempSelectCubes.length !== 2)return false;
 
     var  tpLeft ,btRight,z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
-    if(_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
-        && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y ){
+    if (_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
+        && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y ) {
         tpLeft =_tempSelectCubes[1].position;
         btRight =_tempSelectCubes[0].position;
-    }else if(_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
-        && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y ){
+    } else if(_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
+        && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y ) {
         tpLeft =_tempSelectCubes[0].position;
         btRight =_tempSelectCubes[1].position;
-    }else if(_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
-        && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y ){
+    } else if(_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
+        && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y ) {
 
         tpLeft = snapXYZ(_tempSelectCubes[1].position.x, _tempSelectCubes[0].position.y, z, _cubeSize);
         btRight = snapXYZ(_tempSelectCubes[0].position.x, _tempSelectCubes[1].position.y, z, _cubeSize);
-    }else if(_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
-        && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y ){
+    } else if (_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
+        && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y ) {
 
         tpLeft = snapXYZ(_tempSelectCubes[0].position.x, _tempSelectCubes[1].position.y, z, _cubeSize);
         btRight = snapXYZ(_tempSelectCubes[1].position.x, _tempSelectCubes[0].position.y, z, _cubeSize);
@@ -200,9 +200,9 @@ function removeSelectedPoly () {
             if(inP === false )break;
         }
 
-        if(inP == true){
+        if (inP == true) {
             scene.remove(polys[i].line);
-            $.each(polys[i].cubes , function(i, cube){
+            $.each(polys[i].cubes , function(i, cube) {
                 scene.remove(cube);
             });
             polys.splice(i,1);
@@ -213,7 +213,7 @@ function removeSelectedPoly () {
 }
 
 function checkBound (point, tpLeft , btRight) {
-    if( tpLeft.x <= point.x && point.x <= btRight.x && tpLeft.y <= point.y && point.y <= btRight.y ) {
+    if (tpLeft.x <= point.x && point.x <= btRight.x && tpLeft.y <= point.y && point.y <= btRight.y) {
         return true;
     }
     return false;
@@ -247,7 +247,7 @@ function findPoly(id) {
 }
 
 function redrawLine () {
-    if(_tempCubes.length < 1) {
+    if (_tempCubes.length < 1) {
         return false;
     }
 
@@ -278,10 +278,10 @@ function redrawLine () {
         showWallInfo(endPoint);
     }
 
-    if (_tempCubes.length > 0)
+    if (_tempCubes.length > 0) {
         material.color = _tempCubes[0].material.color;
+    }
 
-    // console.log(_tempLine);
     _tempLine = new THREE.Line(geometry, material);
     _tempLine.name = "tempLine_"+((new Date).getMilliseconds());
     scene.add(_tempLine);
@@ -304,7 +304,6 @@ function commitPoly () {
     _tempCubes = [];
     _tempLine=undefined;
 }
-
 
 //initgrid function Cartographer
 function createPlane () {

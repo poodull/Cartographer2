@@ -86,16 +86,16 @@
         </div>
     </div>
     <div class = "walls subMenu" hidden>
-        <a class = "subMenuButton penWalls"> </a>
-        <div class = "tooltip penTooltip">
-            <p class = "tooltipHeader">Create Walls</p>
-            <p class = "tooltipContent">Create walls on a Floor Map for visual cues and attenuation mapping.</p>
-        </div>
         <a class = "subMenuButton selectWalls"> </a>
         <div class = "tooltip selectWallTooltip">
             <p class = "tooltipHeader">Select Wall</p>
             <p class = "tooltipContent">Delete a wall segment by clicking and dragging a selection around the desired
                 wall or walls to delete.</p>
+        </div>
+        <a class = "subMenuButton penWalls"> </a>
+        <div class = "tooltip penTooltip">
+            <p class = "tooltipHeader">Create Walls</p>
+            <p class = "tooltipContent">Create walls on a Floor Map for visual cues and attenuation mapping.</p>
         </div>
         <a class = "subMenuButton cutWalls"> </a>
         <div class = "tooltip cutTooltip">
@@ -133,6 +133,11 @@
         </div>
     </div>
     <div class = "device subMenu" hidden>
+        <a class = "subMenuButton selectDevice" id = "selectDevice"> </a>
+        <div class = "tooltip selectDeviceTooltip">
+            <p class = "tooltipHeader">Select Device</p>
+            <p class = "tooltipContent">Select a device by clicking this button or select button from Device..</p>
+        </div>
         <a class = "subMenuButton addDevice"> </a>
         <div class = "tooltip addDeviceTooltip">
             <p class = "tooltipHeader">Add Device</p>
@@ -142,11 +147,6 @@
         <div class = "tooltip moveDeviceTooltip">
             <p class = "tooltipHeader">Move Device</p>
             <p class = "tooltipContent">Use this button to move a desired device.</p>
-        </div>
-        <a class = "subMenuButton selectDevice" id = "selectDevice"> </a>
-        <div class = "tooltip selectDeviceTooltip">
-            <p class = "tooltipHeader">Select Device</p>
-            <p class = "tooltipContent">Select a device by clicking this button or select button from Device..</p>
         </div>
         <a class = "subMenuButton deleteDevice deleteDev" id = "deleteDevice"> </a>
         <div class = "tooltip deleteDeviceTooltip">
@@ -208,7 +208,7 @@
     <table>
         <tr>
             <td>
-                <label for="txtDeviceName">Name</label>
+                <label for="txtDeviceName">Name:</label>
             </td>
             <td>
                 <input type="text" name="txtDeviceName" id="txtDeviceName" class="fa-text-height ui-widget deviceField" placeholder="Device Name"/>
@@ -216,7 +216,7 @@
         </tr>
         <tr>
             <td>
-                <label for="deviceType">Type</label>
+                <label for="deviceType">Type:</label>
             </td>
             <td>
                 <select name="deviceType" id="deviceType" class="fa-text-height ui-widget deviceField">
@@ -228,7 +228,7 @@
         </tr>
         <tr>
             <td>
-                <label for="deviceModel">Model</label>
+                <label for="deviceModel">Model:</label>
             </td>
             <td>
                 <select name="deviceModel" id="deviceModel" class="fa-text-height ui-widget deviceField">
@@ -238,7 +238,7 @@
         </tr>
         <tr>
             <td>
-                <label for="txtDeviceID">ID</label>
+                <label for="txtDeviceID">ID:</label>
             </td>
             <td>
                 <input type="number" name="txtDeviceID" min="0" step="1" id="txtDeviceID" class="fa-text-height ui-widget deviceField" placeholder="Device ID"/>

@@ -86,23 +86,26 @@ var _allCubes=[],_tempCubes=[], _cubeSize=5, _tempLine, _cursorVoxel, drawModeRu
 var _currentPen  = 0, _isCubesVisible=true, polylength=0; //default color
 
 function showSubtoolBar() {
-$('a.myButton').click(function() {
-    var classes = this.classList;
-    $('div.subMenu').hide();
-    for (var i = 0; i < classes.length; i++) {
-        if ($('div').hasClass(classes[i])) {
-            $('div.subMenu').hide();
-            $('.' + classes[i]).show();
+    $('a.myButton').click(function () {
+        var classes = this.classList;
+        $('div.subMenu').hide();
+        for (var i = 0; i < classes.length; i++) {
+            if ($('div').hasClass(classes[i])) {
+                $('div.subMenu').hide();
+                $('.' + classes[i]).show();
+            }
         }
-    }
-    $(this).siblings().removeClass('active');
-    $(this).addClass('active');
-    $('.toolbox-tools').attr('hidden', true);
-    $('.deviceMenu').attr('hidden', true);
-});
+        $(this).siblings().removeClass('active');
+        $(this).addClass('active');
+        $('.toolbox-tools').attr('hidden', true);
+        $('.deviceMenu').attr('hidden', true);
+        removeMode();
+    });
 }
 
 function bindListeners () {
+
+    $('a.myButton.file').addClass('active');
     document.onkeydown = onDocumentKeyDown;
 
     $('a.subMenuButton').click(function() {

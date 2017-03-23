@@ -48,7 +48,6 @@ function addDevice (x, y) {
             },
             Cancel: function () {
                 $('#addDeviceMenu').dialog("close");
-                container.style.cursor = "default";
             }
         }
     });
