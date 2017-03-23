@@ -206,17 +206,18 @@ function loadConfig(file, newFile) {
                         loadDevice(device, data.x * floor.scale, data.y * floor.scale, data.floorID);
                     }
                 }
-            }
-            if (_floors.floorData.length > 0) {
-                _floors.selectFloor(0);
-                saveConfig(true);
-            } else {  // If no floors found in the config, load the default floor.
-                loadDefaultFloor();
+                if (_floors.floorData.length > 0) {
+                    _floors.selectFloor(0);
+                    saveConfig(true);
+                } else {  // If no floors found in the config, load the default floor.
+                    loadDefaultFloor();
+                }
+
+                if (config.floors[0] && typeof config.floors[0].walls !== "undefined") {
+                    loadWalls(config.floors[0].walls);
+                }
             }
 
-            if (config.floors[0] && typeof config.floors[0].walls !== "undefined") {
-                loadWalls(config.floors[0].walls);
-             }
 
             if (typeof config.txIcons !== "undefined") {
                 config.txIcons.forEach(function (txIcon) {
@@ -572,6 +573,7 @@ function Floors() {
 
     this.clear = function () {
         this.floorData.forEach(function (floor) {
+            removeWall(floor);
             scene.remove(floor.mesh);
         });
         this.floorData.length = 0;

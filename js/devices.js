@@ -44,8 +44,7 @@ function addDevice (x, y) {
                         saveConfig(true);
                     }
                 }
-                container.style.cursor = "default";
-                _drawMode.mode = '';
+                removeMode();
             },
             Cancel: function () {
                 $('#addDeviceMenu').dialog("close");
@@ -125,7 +124,7 @@ function refreshDevices () {
 
                 deviceList.forEach(function (device) {
                     //Place all devices belonging to current floor..
-                    if (device.mesh.floorID === _floors.selectedFloorIndex) {
+                    if (device.mesh.floorID === _floors.selectedFloorIndex || device.mesh.floorID !== _floors.selectedFloorIndex) {
                         //HTML Elements for text container
                         var textContainer = createElement('tr', 'textContainer');
                         var nameText = createElement('td', "deviceAlphaText");
