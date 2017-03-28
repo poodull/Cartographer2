@@ -192,6 +192,10 @@ function bindListeners () {
         removeSelectedPoly();
     });
 
+    $('.cutWalls').click( function () {
+        cutSelectedWall();
+    });
+
     $('.device').click(function () {
         $('#deviceMenu')[0].removeAttribute('hidden');
         refreshDevices();
@@ -279,7 +283,6 @@ function mouseMove() {
 
     panStart.copy(panEnd);
     controls.dispatchEvent(startEvent);
-
 }
 
 function animate () {
