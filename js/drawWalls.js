@@ -233,7 +233,7 @@ function removeSelectedPoly () {
         btRight = snapXYZ(_tempSelectCubes[1].position.x, _tempSelectCubes[0].position.y, z, _cubeSize);
 
     }
-    var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+    var remPolys=[], polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     for (var i = 0; i < polys.length; i++) {
         var inP=false;
         for (var j = 0; j < polys[i].cubes.length; j++) {
@@ -247,10 +247,14 @@ function removeSelectedPoly () {
             $.each(polys[i].cubes , function(i, cube) {
                 scene.remove(cube);
             });
-            polys.splice(i,1);
-            saveConfig(true);
+            remPolys.push(polys[i]);
         }
     }
+    $.each(remPolys , function(i , poly){
+        var index = polys.indexOf(poly);
+        polys.splice(index,1);
+    });
+    saveConfig(true);
     removeSelectWall();
 }
 
@@ -312,14 +316,6 @@ function redrawLine () {
         geometry.vertices.push(endPoint);
     }
 
-    if (typeof firstPoint !== "undefined") {
-        var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
-        var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
-        var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
-        //console.log(distO , dist);
-        showWallInfo(endPoint);
-    }
-
     if (_tempCubes.length > 0) {
         material.color = _tempCubes[0].material.color;
     }
@@ -327,10 +323,47 @@ function redrawLine () {
     _tempLine = new THREE.Line(geometry, material);
     _tempLine.name = "tempLine_"+((new Date).getMilliseconds());
     scene.add(_tempLine);
+
+    if (typeof firstPoint !== "undefined") {
+        var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
+        var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
+        var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
+        //console.log(distO , dist);
+        showWallInfo(endPoint , _tempLine.name);
+    }
 }
 
-function showWallInfo () {
+function showWallInfo (endPoint , name) {
+    console.log("showWallInfo" ,endPoint);
+    var container;
+    var divId  ="showWallPos_"+name;
+    var divComp=  $("#"+"showWallPos_"+name);
+    if(divComp.length > 0 ){
+        container  = container[0];
+    }else{
+        container = document.createElement("div");
+        container.id=divId;
+        container.style.cssFloat = "width:80px;opacity:0.9;cursor:pointer";
+        container.style.position = 'absolute';
+        container.style.width = '100px';
+    }
 
+
+    $("body").append(container);
+    /*
+    var container = document.createElement("div");
+    container.className="showWallPos";
+    container.style.cssFloat = "width:80px;opacity:0.9;cursor:pointer";
+    container.style.position = 'absolute';
+    container.style.width = '100px';
+    device.mesh.updateMatrixWorld();
+    vector.setFromMatrixPosition(device.mesh.matrixWorld);
+    vector.project(_camera);
+    vector.x = (vector.x * widthHalf) + widthHalf;
+    vector.y = -(vector.y * heightHalf) + heightHalf;
+    container.style.left = vector.x + "px";
+    container.style.top = vector.y + 40 + "px";
+    */
 }
 
 function commitPoly () {
@@ -581,6 +614,7 @@ function loadWalls (polys) {
     var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
     if (polys.length) {
         $.each(polys, function (i, poly) {
+            _tempCubes=[];
             $.each(poly.points, function (i, point) {
                 var snpoint = snapXYZ(point.x, point.y, z, _cubeSize);
                 var voxel = createVoxelAt(snpoint, CubeColors.properties[_currentPen].hex);
