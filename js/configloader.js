@@ -535,26 +535,6 @@ function Floors() {
                     _targetZ = altitude.value;
                 }
             });
-
-            // document.body.dispatchEvent(onSelectedFloorChanged);  //doesn't work like this.  lets do this manually for now:
-            if (typeof initGrid !== "undefined") {
-                if (selectedFloor.gridData !== undefined) {
-                    initGrid(selectedFloor.mesh.position.x,
-                        selectedFloor.mesh.position.y,
-                        selectedFloor.mesh.position.z,
-                        selectedFloor.mesh.geometry.parameters.width,
-                        selectedFloor.mesh.geometry.parameters.height,
-                        5 / selectedFloor.scale, selectedFloor.gridData.polys, selectedFloor.gridData.plane);
-                } else {
-                    initGrid(selectedFloor.mesh.position.x,
-                        selectedFloor.mesh.position.y,
-                        selectedFloor.mesh.position.z,
-                        selectedFloor.mesh.geometry.parameters.width,
-                        selectedFloor.mesh.geometry.parameters.height,
-                        5 / selectedFloor.scale,
-                        undefined, undefined);
-                }
-            }
         }
     };
 

@@ -80,9 +80,9 @@
         </div>
         <div class = "scaleSubMenu thirdMenu" hidden>
             <label for="scaleMeters"> Meters </label>
-            <input type = "radio" name="scale" value = "meters" class = "scaleMeters" id = "scaleMeters">
-            <label for="scaleInches"> Inches </label>
-            <input type = "radio" name="scale" value = "inches" class = "originLon" id = "scaleInches">
+            <input type = "radio" name="scale" value = "meters" class = "scaleMeters" id = "scaleMeters" checked="checked">
+            <label for="scaleFeet"> Feet </label>
+            <input type = "radio" name="scale" value = "inches" class = "scaleFeet" id = "scaleFeet">
         </div>
     </div>
     <div class = "walls subMenu" hidden>
@@ -293,7 +293,7 @@
 <span class = "off-center-tooltip-content"> Select the point on the map to identify as the origin. A useful origin can be used to line up multiple floors, such as
 an elevator shaft, stairwell, or cornerstone. </span>
 </div>
-<div class="hidden" id="frmScale" title="Set Scale">
+<div class="hidden" id="frmScale" title="Set Scale" hidden>
 <label for="txtScaleDistance">Distance in meters</label>
 <input type="number" name="txtScaleDistance" id="txtScaleDistance" class="fa-text-height ui-widget" /> <br />
 </div>

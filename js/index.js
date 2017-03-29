@@ -100,6 +100,9 @@ function showSubtoolBar() {
         $('.toolbox-tools').attr('hidden', true);
         $('.deviceMenu').attr('hidden', true);
         removeMode();
+        $('.thirdMenu').attr('hidden', true);
+        $('.thirdMenu')[0].removeAttribute("style");
+        $('.thirdMenu')[1].removeAttribute("style");
     });
 }
 
@@ -155,6 +158,7 @@ function bindListeners () {
         initDrawLine();
     });
     $('#loadConfig').change( function () {
+        _floors.clear();
         var file = $('#loadConfig').get(0).files[0];
         if (file) {
             loadConfig(file);
@@ -166,6 +170,7 @@ function bindListeners () {
         setDropDown();
     });
     $('#loadFloorImage').change( function () {
+        _floors.clear();
         var file = $('#loadFloorImage').get(0).files[0];
         if (file) {
             loadImage(file);

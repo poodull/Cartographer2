@@ -9,7 +9,8 @@
 .subToolbar {
     height: 50px;
     background-color: #276ca9;
-    width: 100%;
+    width: 98%;
+    padding-left: 50px;
 }
 
 .active {
