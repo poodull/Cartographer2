@@ -157,6 +157,12 @@ function bindListeners () {
         _drawMode.mode = ControlModes.DrawPoly;
         initDrawLine();
     });
+    var wallType;
+    $('.drawWalls').click( function () {
+        controls.mouseButtons.ORBIT = -1;
+        _drawMode.mode = ControlModes.DrawContinuePoly;
+        initDrawLine();
+     });
     $('#loadConfig').change( function () {
         _floors.clear();
         var file = $('#loadConfig').get(0).files[0];

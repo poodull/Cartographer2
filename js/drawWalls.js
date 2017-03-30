@@ -14,6 +14,7 @@ var ControlModes = {
     MoveDevice: 'moveDevice',
     EditDevice: 'editDevice',
     DrawPoly: 'drawPoly',
+    DrawContinuePoly: 'DrawContinuePoly',
     Select: 'select'
 };
 var _tempScaleCube = [], selectDrawBox = false;
@@ -36,6 +37,10 @@ function initCursorVoxel(cursorSize) {
 }
 
 function stopDrawWall () {
+    if( _drawMode.mode == ControlModes.DrawContinuePoly) {
+        drawMode.selectedObject = undefined;
+        redrawLine();
+    }
     $.each(_tempCubes , function(i , cube){
         scene.remove(cube);
     });
@@ -152,6 +157,15 @@ function onDocumentMouseDownDraw (event) {
                     return false;
                 }
                 drawModeRun = true;
+                break;
+
+            case ControlModes.DrawContinuePoly:
+                var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
+                _drawMode.selectedObject = intersects[0];
+                var voxel = createVoxelAt(_drawMode.selectedObject.point, CubeColors.properties[_currentPen].hex);
+                scene.add(voxel);
+                _tempCubes.push(voxel);
+                commitPoly();
                 break;
 
             case ControlModes.Select:
@@ -335,7 +349,7 @@ function redrawLine () {
 
         endPoint = snapXYZ(x, y, z, _cubeSize);
         var wallname = _tempLine.name;
-        if (drawModeRun) {
+        if (drawModeRun  || _drawMode.mode == ControlModes.DrawContinuePoly) {
             wallname = "_temp";
         }
 
@@ -405,8 +419,10 @@ function commitPoly () {
 
     _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
     saveConfig(true);
-    _tempCubes = [];
-    _tempLine=undefined;
+    if (_drawMode.mode !== ControlModes.DrawContinuePoly ) {
+        _tempCubes = [];
+        _tempLine = undefined;
+    }
 }
 
 //initgrid function Cartographer
@@ -461,6 +477,15 @@ function onDocumentMouseMoveDraw (event) {
 
             _drawMode.selectedObject = intersects[0];
 
+            if(_tempCubes.length < 1)return false;
+            redrawLine();
+            } else if (_drawMode.mode == ControlModes.DrawContinuePoly ) {
+            var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
+            _cursorVoxel.position.x = point.x;
+            _cursorVoxel.position.y = point.y;
+            _cursorVoxel.position.z = point.z;
+            _cursorVoxel.visible = true;
+            _drawMode.selectedObject = intersects[0];
             if(_tempCubes.length < 1)return false;
             redrawLine();
         } else if(_drawMode.mode == ControlModes.Select &&  _tempSelectCubes.length) {
