@@ -18,6 +18,7 @@ var ControlModes = {
 };
 var _tempScaleCube = [], selectDrawBox = false;
 var _tempScaleLine, _tempSelectLine, _tempSelectCubes=[];
+var drawModeRun = false;
 
 function initDrawLine () {
     initCursorVoxel(_cubeSize);
@@ -329,41 +330,69 @@ function redrawLine () {
         var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
         var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
         //console.log(distO , dist);
-        showWallInfo(endPoint , _tempLine.name);
+        var x = (endPoint.x + firstPoint.x)/2;
+        var y =  (endPoint.y + firstPoint.y)/2;
+
+        endPoint = snapXYZ(x, y, z, _cubeSize);
+        var wallname = _tempLine.name;
+        if (drawModeRun) {
+            wallname = "_temp";
+        }
+
+        //showWallInfo(endPoint , wallname ,dist);
     }
+
 }
 
-function showWallInfo (endPoint , name) {
+function showWallInfo (endPoint , wallname ,dist) {
     console.log("showWallInfo" ,endPoint);
+    var vector = new THREE.Vector3();
+    var widthHalf = 0.5 * renderer.context.canvas.width;
+    var heightHalf = 0.5 * renderer.context.canvas.height;
+
     var container;
-    var divId  ="showWallPos_"+name;
-    var divComp=  $("#"+"showWallPos_"+name);
+    var divId  ="showWallPos_"+wallname;
+    var divComp=  $("#"+divId);
     if(divComp.length > 0 ){
-        container  = container[0];
+        container  = divComp[0];
     }else{
         container = document.createElement("div");
         container.id=divId;
         container.style.cssFloat = "width:80px;opacity:0.9;cursor:pointer";
         container.style.position = 'absolute';
-        container.style.width = '100px';
+        container.style.width = '40px';
     }
-
+    $(container).text( Math.trunc(dist) ).css({ 'color':'white' });
 
     $("body").append(container);
-    /*
-    var container = document.createElement("div");
-    container.className="showWallPos";
-    container.style.cssFloat = "width:80px;opacity:0.9;cursor:pointer";
-    container.style.position = 'absolute';
-    container.style.width = '100px';
-    device.mesh.updateMatrixWorld();
-    vector.setFromMatrixPosition(device.mesh.matrixWorld);
-    vector.project(_camera);
+
+    var voxel =createVoxelAt (endPoint, "red");
+    voxel.updateMatrixWorld();
+    vector.setFromMatrixPosition(voxel.matrixWorld);
+    vector.project(camera);
+    //debugger;
     vector.x = (vector.x * widthHalf) + widthHalf;
     vector.y = -(vector.y * heightHalf) + heightHalf;
+
     container.style.left = vector.x + "px";
-    container.style.top = vector.y + 40 + "px";
-    */
+    container.style.top = vector.y + 45 + "px";
+
+
+
+    /*
+     var container = document.createElement("div");
+     container.className="showWallPos";
+     container.style.cssFloat = "width:80px;opacity:0.9;cursor:pointer";
+     container.style.position = 'absolute';
+     container.style.width = '100px';
+     device.mesh.updateMatrixWorld();
+     vector.setFromMatrixPosition(device.mesh.matrixWorld);
+     vector.project(_camera);
+     vector.x = (vector.x * widthHalf) + widthHalf;
+     vector.y = -(vector.y * heightHalf) + heightHalf;
+     container.style.left = vector.x + "px";
+     container.style.top = vector.y + 40 + "px";
+     */
 }
 
 function commitPoly () {

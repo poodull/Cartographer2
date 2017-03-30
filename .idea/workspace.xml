@@ -3,10 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="ec636df0-0d49-42ae-af0b-42d2c4ed81db" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/css/styles.css" afterPath="$PROJECT_DIR$/css/styles.css" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/configloader.js" afterPath="$PROJECT_DIR$/js/configloader.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/index.js" afterPath="$PROJECT_DIR$/js/index.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/drawWalls.js" afterPath="$PROJECT_DIR$/js/drawWalls.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/originScale.js" afterPath="$PROJECT_DIR$/js/originScale.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -24,11 +23,11 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="907">
-              <caret line="281" column="16" lean-forward="true" selection-start-line="281" selection-start-column="16" selection-end-line="281" selection-end-column="16" />
+            <state relative-caret-position="125">
+              <caret line="91" column="117" lean-forward="true" selection-start-line="91" selection-start-column="117" selection-end-line="91" selection-end-column="117" />
               <folding />
             </state>
           </provider>
@@ -60,8 +59,8 @@
       <file leaf-file-name="index.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="174" column="19" lean-forward="true" selection-start-line="174" selection-start-column="19" selection-end-line="174" selection-end-column="19" />
+            <state relative-caret-position="372">
+              <caret line="309" column="17" lean-forward="false" selection-start-line="309" selection-start-column="17" selection-end-line="309" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -102,11 +101,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="drawWalls.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="drawWalls.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/drawWalls.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="464">
-              <caret line="478" column="35" lean-forward="true" selection-start-line="478" selection-start-column="35" selection-end-line="478" selection-end-column="35" />
+            <state relative-caret-position="447">
+              <caret line="341" column="50" lean-forward="true" selection-start-line="341" selection-start-column="50" selection-end-line="341" selection-end-column="50" />
               <folding />
             </state>
           </provider>
@@ -115,8 +114,8 @@
       <file leaf-file-name="originScale.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/originScale.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="707">
-              <caret line="44" column="21" lean-forward="true" selection-start-line="44" selection-start-column="21" selection-end-line="44" selection-end-column="21" />
+            <state relative-caret-position="282">
+              <caret line="22" column="49" lean-forward="true" selection-start-line="22" selection-start-column="49" selection-end-line="22" selection-end-column="49" />
               <folding>
                 <element signature="n#!!doc;n#setNewOrigin#0" expanded="false" />
               </folding>
@@ -127,8 +126,8 @@
       <file leaf-file-name="configloader.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/configloader.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="226">
-              <caret line="369" column="32" lean-forward="true" selection-start-line="369" selection-start-column="32" selection-end-line="369" selection-end-column="32" />
+            <state relative-caret-position="1552">
+              <caret line="509" column="24" lean-forward="false" selection-start-line="509" selection-start-column="24" selection-end-line="509" selection-end-column="24" />
               <folding />
             </state>
           </provider>
@@ -145,8 +144,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>_devices.deviceList</find>
-      <find>refre</find>
       <find>Floors()</find>
       <find>originFloorImage</find>
       <find>deviceContent</find>
@@ -172,9 +169,11 @@
       <find>removeWall</find>
       <find>inches</find>
       <find>subTool</find>
-      <find>distance in meters</find>
-      <find>SetOr</find>
       <find>scale</find>
+      <find>distance in meters</find>
+      <find>loadFloor</find>
+      <find>drawAxesHelper</find>
+      <find>SetOr</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -190,12 +189,12 @@
         <option value="$PROJECT_DIR$/js/libraries/OrbitControls.js" />
         <option value="$PROJECT_DIR$/js/devices.js" />
         <option value="$PROJECT_DIR$/js/mouseEvents.js" />
-        <option value="$PROJECT_DIR$/js/drawWalls.js" />
         <option value="$PROJECT_DIR$/css/styles.css" />
-        <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/js/index.js" />
         <option value="$PROJECT_DIR$/js/configloader.js" />
+        <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/js/originScale.js" />
+        <option value="$PROJECT_DIR$/js/drawWalls.js" />
       </list>
     </option>
   </component>
@@ -368,12 +367,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1488821926269</updated>
-      <workItem from="1488821927514" duration="138891000" />
+      <workItem from="1488821927514" duration="146609000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="138891000" />
+    <option name="totallyTimeSpent" value="146609000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="0" width="1924" height="1047" extended-state="0" />
@@ -514,14 +513,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/drawWalls.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="464">
-          <caret line="478" column="35" lean-forward="true" selection-start-line="478" selection-start-column="35" selection-end-line="478" selection-end-column="35" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/js/imageLoader.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-410">
@@ -530,36 +521,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/originScale.js">
+    <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="707">
-          <caret line="44" column="21" lean-forward="true" selection-start-line="44" selection-start-column="21" selection-end-line="44" selection-end-column="21" />
-          <folding>
-            <element signature="n#!!doc;n#setNewOrigin#0" expanded="false" />
-          </folding>
+        <state relative-caret-position="125">
+          <caret line="91" column="117" lean-forward="true" selection-start-line="91" selection-start-column="117" selection-end-line="91" selection-end-column="117" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="174" column="19" lean-forward="true" selection-start-line="174" selection-start-column="19" selection-end-line="174" selection-end-column="19" />
+        <state relative-caret-position="372">
+          <caret line="309" column="17" lean-forward="false" selection-start-line="309" selection-start-column="17" selection-end-line="309" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/configloader.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="226">
-          <caret line="369" column="32" lean-forward="true" selection-start-line="369" selection-start-column="32" selection-end-line="369" selection-end-column="32" />
+        <state relative-caret-position="1552">
+          <caret line="509" column="24" lean-forward="false" selection-start-line="509" selection-start-column="24" selection-end-line="509" selection-end-column="24" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/index.html">
+    <entry file="file://$PROJECT_DIR$/js/originScale.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="907">
-          <caret line="281" column="16" lean-forward="true" selection-start-line="281" selection-start-column="16" selection-end-line="281" selection-end-column="16" />
+        <state relative-caret-position="282">
+          <caret line="22" column="49" lean-forward="true" selection-start-line="22" selection-start-column="49" selection-end-line="22" selection-end-column="49" />
+          <folding>
+            <element signature="n#!!doc;n#setNewOrigin#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/drawWalls.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="447">
+          <caret line="341" column="50" lean-forward="true" selection-start-line="341" selection-start-column="50" selection-end-line="341" selection-end-column="50" />
           <folding />
         </state>
       </provider>
