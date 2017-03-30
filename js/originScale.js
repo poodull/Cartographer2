@@ -45,6 +45,7 @@ function setNewScale (distance ,distancePx) {
     saveConfig(true);
 
     if (typeof localStorage !== "undefined") {
+        _drawMode.selectedObject = undefined;
         config = localStorage.getItem("config");
         loadConfig(new Blob([config], { type: "text/plain;charset=utf-8" }));
     }
