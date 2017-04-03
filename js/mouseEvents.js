@@ -63,7 +63,7 @@ function getLocation (device) {
         if (device.mesh === null) {
             devPos = device.position;
         } else {
-            devPos = device.mesh.position;
+            devPos = device.info ||  device.mesh.position;
         }
         var devX = devPos.x / floor.scale,
             devY = devPos.y / floor.scale,
@@ -91,7 +91,7 @@ function onDocumentKeyDown (e) {
     var keyevent = window.event ? event : e;
     switch (keyevent.keyCode) {
         case 27:
-            if (_drawMode.mode == ControlModes.DrawPoly && _tempLine) {
+            if ((_drawMode.mode == ControlModes.DrawPoly || _drawMode.mode == ControlModes.DrawContinuePoly ) && _tempLine) {
                 scene.remove(_cursorVoxel);
                 stopDrawWall();
                 drawModeRun = false;

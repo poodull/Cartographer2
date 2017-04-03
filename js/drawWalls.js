@@ -40,12 +40,13 @@ function stopDrawWall () {
     if( _drawMode.mode == ControlModes.DrawContinuePoly) {
         drawMode.selectedObject = undefined;
         redrawLine();
-    }
-    $.each(_tempCubes , function(i , cube){
+    } else {
+        $.each(_tempCubes , function(i , cube){
         scene.remove(cube);
     });
     scene.remove(_tempLine);
     scene.remove(_cursorVoxel);
+    }
     _tempCubes = [];
     _tempLine = undefined;
 }
