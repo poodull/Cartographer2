@@ -96,11 +96,11 @@ function onDocumentKeyDown (e) {
                 stopDrawWall();
                 drawModeRun = false;
             } else if (_drawMode.mode == ControlModes.Select && _tempSelectLine) {
-                removeSelectWall();
+                removeSelectWallBox();
             } else if (_drawMode.mode == ControlModes.Select) {
-                removeSelectWall();
+                removeSelectWallBox();
                 removeMode();
-            } else if (_drawMode.mode == ControlModes.DrawPoly) {
+            } else if (_drawMode.mode == ControlModes.DrawPoly || _drawMode.mode == ControlModes.DrawContinuePoly) {
                 scene.remove(_cursorVoxel);
                 removeMode();
             } else {

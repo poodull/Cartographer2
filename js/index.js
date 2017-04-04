@@ -118,7 +118,7 @@ function bindListeners () {
         $('.deviceMenu').attr('hidden', true);
     });
 
-    $('a.subMenuButton.penWalls, a.subMenuButton.selectWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice, a.subMenuButton.originFloorImage, a.subMenuButton.scaleFloorImage').click(function() {
+    $('a.subMenuButton.penWalls, a.subMenuButton.drawWalls, a.subMenuButton.selectWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice, a.subMenuButton.originFloorImage, a.subMenuButton.scaleFloorImage').click(function() {
         container.style.cursor = "default";
         $(this).siblings().removeClass('active');
         $(this).addClass('active');

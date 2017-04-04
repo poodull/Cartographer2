@@ -19,13 +19,13 @@ function setNewOrigin (intersects) {
             device.mesh.deviceOutline.position.copy(device.mesh.position);*/
             var infoPosi = {
                 x: ( device.mesh.position.x - intersects[0].point.x ),
-                y: ( device.mesh.position.y - intersects[0].point.y ),
-            }
+                y: ( device.mesh.position.y - intersects[0].point.y )
+            };
             device['info'] = infoPosi;
         }
     });
 
-    var polys =  [].concat(floor.gridData.polys);
+    /*var polys =  [].concat(floor.gridData.polys);
     polys.forEach(function (poly, index, list) {
         poly.cubes.forEach(function (cube, index, list) {
             cube.position.x -= intersects[0].point.x;
@@ -37,7 +37,7 @@ function setNewOrigin (intersects) {
         selectPoly(poly.polyId);
         redrawLine();
         floor.gridData.polys[index].line = _tempLine;
-    });
+    });*/
     createPlane();
 }
 
