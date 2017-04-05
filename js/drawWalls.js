@@ -19,7 +19,6 @@ var ControlModes = {
 };
 var _tempScaleCube = [], selectDrawBox = false;
 var _tempScaleLine, _tempSelectLine, _tempSelectCubes=[];
-var drawModeRun = false;
 
 function initDrawLine () {
     initCursorVoxel(_cubeSize);
@@ -38,7 +37,7 @@ function initCursorVoxel(cursorSize) {
 
 function stopDrawWall () {
     if( _drawMode.mode == ControlModes.DrawContinuePoly) {
-        drawMode.selectedObject = undefined;
+        _drawMode.selectedObject = undefined;
         redrawLine();
     } else {
         $.each(_tempCubes , function(i , cube){
@@ -131,6 +130,7 @@ function cutSelectedWall () {
     }
 }
 
+var drawModeRun = false;
 function onDocumentMouseDownDraw (event) {
     if (event.button == 0) {
         event.preventDefault();
@@ -236,8 +236,6 @@ function removeSelectedPoly () {
     /* single select wall remove */
     var remPolys=[] , polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     if(typeof singleSelectWall !== "undefined"){
-        console.log(singleSelectWall);
-
         scene.remove(singleSelectWall.line);
         $.each(singleSelectWall.cubes , function(i, cube) {
             scene.remove(cube);
@@ -384,7 +382,7 @@ function redrawLine () {
 }
 
 function showWallInfo (endPoint , wallname ,dist) {
-    console.log("showWallInfo" ,endPoint);
+    // console.log("showWallInfo" ,endPoint);
     var vector = new THREE.Vector3();
     var widthHalf = 0.5 * renderer.context.canvas.width;
     var heightHalf = 0.5 * renderer.context.canvas.height;
@@ -434,15 +432,30 @@ function showWallInfo (endPoint , wallname ,dist) {
      */
 }
 
+var continueLinePoly;
 function commitPoly () {
-    var poly = {
-        polyId: _tempCubes[0].id,
-        cubes: _tempCubes,
-        line: _tempLine,
-        color: _tempCubes[0].pen
-    };
+    if(typeof continueLinePoly == "undefined"){
+        var poly = {
+            polyId: _tempCubes[0].id,
+            cubes: _tempCubes,
+            line:  _tempLine,
+            color: _tempCubes[0].pen
+        };
+        _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
 
-    _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
+        if(_drawMode.mode == ControlModes.DrawContinuePoly) {
+            continueLinePoly = poly.polyId;
+        }
+    }else{
+        var  contPoly, polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+        $.each(polys , function(i ,  poly){
+            if(poly.polyId ==  continueLinePoly  ){
+                contPoly = poly;
+            }
+        });
+        console.log(contPoly);
+    }
+
     saveConfig(true);
     if (_drawMode.mode !== ControlModes.DrawContinuePoly ) {
         _tempCubes = [];
