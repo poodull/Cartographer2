@@ -112,13 +112,17 @@ function bindListeners () {
     document.onkeydown = onDocumentKeyDown;
 
     $('a.subMenuButton').click(function() {
+        if(  $( this).not( ".selectWalls" ) ) {
+            removeSelectWallBox();
+        }
+
         container.style.cursor = "default";
         $(this).siblings().removeClass('active');
         $('.toolbox-tools').attr('hidden', true);
         $('.deviceMenu').attr('hidden', true);
     });
 
-    $('a.subMenuButton.penWalls, a.subMenuButton.drawWalls, a.subMenuButton.selectWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice, a.subMenuButton.originFloorImage, a.subMenuButton.scaleFloorImage').click(function() {
+    $('a.subMenuButton.penWalls, a.subMenuButton.selectWalls, a.subMenuButton.drawWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice, a.subMenuButton.originFloorImage, a.subMenuButton.scaleFloorImage').click(function() {
         container.style.cursor = "default";
         $(this).siblings().removeClass('active');
         $(this).addClass('active');
@@ -157,12 +161,13 @@ function bindListeners () {
         _drawMode.mode = ControlModes.DrawPoly;
         initDrawLine();
     });
+
     var wallType;
     $('.drawWalls').click( function () {
         controls.mouseButtons.ORBIT = -1;
         _drawMode.mode = ControlModes.DrawContinuePoly;
         initDrawLine();
-     });
+    });
     $('#loadConfig').change( function () {
         _floors.clear();
         var file = $('#loadConfig').get(0).files[0];
