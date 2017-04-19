@@ -85,6 +85,13 @@ function removeMode () {
     $(".subMenu").children().removeClass('active');
     container.style.cursor = "default";
     _drawMode.mode = '';
+    $.each(selectedPolys, function (i, poly) {
+        poly.line.material.color = new THREE.Color('red');
+        $.each(poly.cubes, function (i, cube) {
+            cube.material.color = new THREE.Color('red');
+        });
+    });
+    selectedPolys = [];
 }
 
 function onDocumentKeyDown (e) {

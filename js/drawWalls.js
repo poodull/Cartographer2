@@ -51,6 +51,7 @@ function stopDrawWall () {
         scene.remove(_cursorVoxel);
     }
     _tempCubes = [];
+    continueLinePoly = undefined;
     _tempLine = undefined;
 }
 
@@ -544,7 +545,7 @@ function commitPoly () {
         lineId:_tempLine.id
     };
 
-    if(typeof continueLinePoly == "undefined"){
+    if (typeof continueLinePoly == "undefined") {
         if(typeof arguments[0] == "undefined"){
             _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
         }else{
@@ -555,14 +556,13 @@ function commitPoly () {
             //continueLinePoly = poly.polyId;
             continueLinePoly = poly;
         }
-    }else{
+    } else {
         var  contPoly, polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
-        $.each(polys , function(i ,  eachpoly){
-            if(poly.polyId ==  continueLinePoly.polyId  ){
+        $.each(polys , function(i, eachpoly){
+            if(eachpoly.polyId == continueLinePoly.polyId ){
                 var index = polys.indexOf(eachpoly);
                 polys[index] = poly;
                 contPoly = eachpoly;
-
             }
         });
     }
@@ -582,7 +582,6 @@ function createPlane () {
     }
 
     var selectedFloor = _floors.floorData[index];
-
     var width = selectedFloor.mesh.geometry.parameters.width;
     var height = selectedFloor.mesh.geometry.parameters.height;
     var geometry = new THREE.PlaneBufferGeometry(width, height);
@@ -619,7 +618,7 @@ function onDocumentMouseMoveDraw (event) {
     if (intersects.length > 0) {
 
 
-        if(mouseDownDraw && typeof selectPolyCube !== "undefined"){
+        if (mouseDownDraw && typeof selectPolyCube !== "undefined") {
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             _tempCubes=[];
             $.each(singleSelectWall.cubes , function(i ,cube){
@@ -630,7 +629,6 @@ function onDocumentMouseMoveDraw (event) {
                     _tempCubes.push(cube);
                 }
             });
-            //console.log(_tempCubes[0].position , _tempCubes[1].position);
             scene.remove(singleSelectWall.line);
             var polys  = _floors.floorData[0].gridData.polys;
             $.each(polys , function(i , poly){
@@ -642,10 +640,7 @@ function onDocumentMouseMoveDraw (event) {
             });
             _drawMode.selectedObject = undefined;
             redrawLine();
-
-
-
-        }else if(mouseDownDraw && typeof singleSelectWall !== "undefined"){
+        } else if (mouseDownDraw && typeof singleSelectWall !== "undefined") {
             _drawMode.selectedObject  = undefined;
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             var touchPoint = singleSelectWall.touchpoint;
@@ -675,10 +670,8 @@ function onDocumentMouseMoveDraw (event) {
 
             scene.remove(singleSelectWall.line);
             redrawLine();
-
-
             return false;
-        }else if (_drawMode.mode == ControlModes.DrawPoly) {
+        } else if (_drawMode.mode == ControlModes.DrawPoly) {
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             _cursorVoxel.position.x = point.x;
             _cursorVoxel.position.y = point.y;
@@ -698,7 +691,7 @@ function onDocumentMouseMoveDraw (event) {
             _drawMode.selectedObject = intersects[0];
             if(_tempCubes.length < 1)return false;
             redrawLine();
-        } else if(_drawMode.mode == ControlModes.Select &&  _tempSelectCubes.length) {
+        } else if (_drawMode.mode == ControlModes.Select &&  _tempSelectCubes.length) {
             if(selectDrawBox)return false;
             if( _tempSelectLine !== "undefined"){
                 scene.remove(_tempSelectLine);
@@ -807,6 +800,8 @@ function onDocumentMouseUpDraw(event) {
 
     } else if (typeof singleSelectWall !== "undefined") {
         if (typeof _tempLine == "undefined") {
+            selectedPolys = [];
+            selectedPolys.push(singleSelectWall);
             singleSelectWall = undefined;
             return false;
         }
@@ -847,7 +842,6 @@ function onDocumentMouseUpDraw(event) {
                 showSelectedPoly();
 
             }
-
             $.each(_tempSelectCubes , function( i,  cube){
                 scene.remove(cube);
             });
@@ -1090,9 +1084,6 @@ function selectWallFunc () {
                         }
                     });
                 }
-
-
-
             }
 
             if(typeof singleWall !== "undefined" ){
