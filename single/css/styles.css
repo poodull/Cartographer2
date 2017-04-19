@@ -1,0 +1,48 @@
+.mainToolbar {
+    position: absolute;
+    height: 100%;
+    width: 50px !important;
+    display: inline;
+    background-color: #276ca9;
+}
+
+.subMenuButton {
+    background-size: 30px 30px;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 2.5em;
+    height: 2.5em;
+    border-radius: 6px;
+    background-color: #cde7f7;
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 6px;
+    margin-left: 4px;
+}
+
+.myButton.file {
+    background-image: url("../images/file.png");
+}
+
+.clearFloorImage {
+    background-image: url("../images/clear.png");
+}
+
+.importFile {
+    background-image: url("../images/importConfig.png");
+}
+
+.ui-icon {
+    height:40px;
+    width: 39px;
+    display: block;
+}
+
+div#ThreeJS{
+    left: 48px;
+}
+
+#deviceDetailsLocation {
+    position: absolute;
+    background: white;
+}

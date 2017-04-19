@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/jquery-ui.css" />
+    <link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.min.css" />
+    <script src="js/libraries/jquery.min.js"></script>
+    <script src="js/libraries/jquery-ui.js"></script>
+    <script src="js/libraries/three.js"></script>
+    <script src="js/libraries/OrbitControls.js"></script>
+    <script src="js/libraries/FileSaver.js"></script>
+    <script src="js/libraries/async.js"></script>
+    <script src="js/libraries/TweenLite.js"></script>
+    <script src="js/index.js"></script>
+    <script src="js/configloader.js"></script>
+    <script src="js/floorData.js"></script>
+    <script src="js/drawWalls.js"></script>
+    <script src="js/devices.js"></script>
+</head>
+<body>
+
+<div class = "mainToolbar">
+    <input type="file" id="loadConfig" name="cmdLoadConfig" hidden multiple />
+    <a class = "subMenuButton importFile"id="importFile"></a>
+    <a class = "subMenuButton clearFloorImage" id="clearFloorImage"> </a>
+</div>
+
+<div id="ThreeJS"></div>
+<div hidden id="confirmNew">
+    <p><span class = "ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>This will clear the current configuration. Are you sure?</p>
+</div>
+
+</body>
+</html>
