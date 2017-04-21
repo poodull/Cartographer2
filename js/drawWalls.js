@@ -14,6 +14,7 @@ var ControlModes = {
     MoveDevice: 'moveDevice',
     EditDevice: 'editDevice',
     DrawPoly: 'drawPoly',
+    CutPoly: 'cutPoly',
     DrawContinuePoly: 'DrawContinuePoly',
     Select: 'select'
 };
@@ -92,7 +93,58 @@ function removeWall (floor) {
     _tempLine=undefined;
 }
 
-function cutSelectedWall () {
+function cutSelectedWall(topoly  , cutPoint ){
+    var polys  = _floors.floorData[0].gridData.polys;
+    var polycube = [] ,  polyline = [];
+    var toCutWall;
+    $.each(polys , function ( i , poly){
+        if(topoly.name === poly.line.name ){
+            toCutWall = poly;
+            scene.remove(poly.line);
+
+
+            _tempCubes = [];
+            $.each(poly.cubes , function(j , cube){
+                _tempCubes.push(cube);
+
+                if(j === (poly.cubes.length - 1) ){
+                    _drawMode.selectedObject = undefined;
+                    redrawLine();
+                    commitPoly();
+                    var index = polys.indexOf(poly);
+                    polys.splice(index,1);
+                    return false;
+                }
+
+                var nextpoint = poly.cubes[j+1];
+                var diff  = (cutPoint.x - cube.position.x)*(cutPoint.y - nextpoint.position.y) - (cutPoint.x - nextpoint.position.x)*(cutPoint.y - cube.position.y);
+                //console.log(diff) ;
+                if ( diff <  3 && diff > -3 ){
+                    //console.log(cutPoint , cube , nextpoint);
+                    var voxel =createVoxelAt( cutPoint , "red")
+                    scene.add(voxel);
+                    _tempCubes.push(voxel);
+                    _drawMode.selectedObject = undefined;
+                    redrawLine();
+                    commitPoly();
+                    _tempCubes = [];
+
+                    var voxel =createVoxelAt( cutPoint , "red")
+                    scene.add(voxel);
+                    _tempCubes.push(voxel);
+                }
+                //if(cube.position.x < cutPoint.x &&  nextpoint.x && ){}
+            })
+        }
+    });
+
+    // console.log(toCutWall);
+    //var index = polys.indexOf(selectpoly);
+    //polys[index];
+}
+
+function cutSelectedWallOld(){
+    return false;
     var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     for (var i = 0; i < polys.length; i++) {
         //console.log(polys[i].cubes[0].position , polys[i].cubes[1].position);
@@ -171,6 +223,20 @@ function onDocumentMouseDownDraw (event) {
                 _tempCubes.push(voxel);
                 commitPoly();
                 redrawLine();
+                break;
+            case ControlModes.CutPoly:
+                var polys  = _floors.floorData[0].gridData.polys;
+                var polycube = [] ,  polyline = [];
+
+                $.each(polys , function(i , poly){
+                    polyline.push( poly.line );
+                });
+                var intersects = raycaster.intersectObjects(polyline, true);
+                if(intersects.length){
+                    cutSelectedWall(intersects[0].object , intersects[0].point  );
+                }
+
+
                 break;
 
             case ControlModes.Select:
@@ -319,6 +385,7 @@ function removeSelectedPoly () {
 
 var selectedPolys=[];
 function showSelectedPoly () {
+    selectedPolys=[];
     /* single select wall remove */
     var remPolys=[] , polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     if(typeof singleSelectWall !== "undefined"){
@@ -691,7 +758,7 @@ function onDocumentMouseMoveDraw (event) {
             _drawMode.selectedObject = intersects[0];
             if(_tempCubes.length < 1)return false;
             redrawLine();
-        } else if (_drawMode.mode == ControlModes.Select &&  _tempSelectCubes.length) {
+        } else if (_drawMode.mode == ControlModes.Select && _tempSelectCubes.length) {
             if(selectDrawBox)return false;
             if( _tempSelectLine !== "undefined"){
                 scene.remove(_tempSelectLine);

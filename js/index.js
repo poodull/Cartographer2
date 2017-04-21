@@ -118,7 +118,7 @@ function bindListeners () {
         $('.deviceMenu').attr('hidden', true);
     });
 
-    $('a.subMenuButton.penWalls, a.subMenuButton.selectWalls, a.subMenuButton.drawWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice, a.subMenuButton.originFloorImage, a.subMenuButton.scaleFloorImage').click(function() {
+    $('a.subMenuButton.penWalls, a.subMenuButton.selectWalls, a.subMenuButton.cutWalls, a.subMenuButton.drawWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice, a.subMenuButton.originFloorImage, a.subMenuButton.scaleFloorImage').click(function() {
         container.style.cursor = "default";
         $(this).siblings().removeClass('active');
         $(this).addClass('active');
@@ -205,7 +205,7 @@ function bindListeners () {
     });
 
     $('.cutWalls').click( function () {
-        cutSelectedWall();
+        _drawMode.mode = ControlModes.CutPoly;
     });
 
     $('.device').click(function () {
