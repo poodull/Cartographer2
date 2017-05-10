@@ -242,9 +242,7 @@ function bindListeners () {
         _drawMode.mode = ControlModes.EditDevice;
     });
     $('.panSelect').click(function () {
-        var panStart = new THREE.Vector2();
-        panStart.set(event.clientX, event.clientY);
-        container.addEventListener('mousemove', mouseMove, false);
+        _drawMode.mode = ControlModes.PanSelect;
     });
     $('.zoomOutSelect').click(function () {
         updateZoom(true, 0.95);
