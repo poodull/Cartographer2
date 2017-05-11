@@ -118,7 +118,7 @@ function bindListeners () {
         $('.deviceMenu').attr('hidden', true);
     });
 
-    $('a.subMenuButton.penWalls, a.subMenuButton.selectWalls, a.subMenuButton.cutWalls, a.subMenuButton.drawWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice, a.subMenuButton.originFloorImage, a.subMenuButton.scaleFloorImage').click(function() {
+    $('a.subMenuButton.penWalls, a.subMenuButton.selectWalls, a.subMenuButton.cutWalls, a.subMenuButton.panSelect, a.subMenuButton.drawWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice, a.subMenuButton.originFloorImage, a.subMenuButton.scaleFloorImage').click(function() {
         container.style.cursor = "default";
         $(this).siblings().removeClass('active');
         $(this).addClass('active');
@@ -279,20 +279,6 @@ function bindListeners () {
             }
         });
     }
-}
-
-function mouseMove() {
-    var startEvent = {type: 'start'};
-    var panEnd = new THREE.Vector2();
-    var panDelta = new THREE.Vector2();
-    var panStart = new THREE.Vector2();
-    panEnd.set(event.clientX, event.clientY);
-    panDelta.subVectors(panEnd, panStart);
-
-    controls.constraint.pan(panDelta.x, panDelta.y);
-
-    panStart.copy(panEnd);
-    controls.dispatchEvent(startEvent);
 }
 
 function animate () {

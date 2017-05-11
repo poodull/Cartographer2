@@ -20,9 +20,9 @@ var ControlModes = {
     PanSelect: 'panSelect'
 };
 var _tempScaleCube = [], selectDrawBox = false;
-var _tempScaleLine, _tempSelectLine, _tempSelectCubes=[];
+var _tempScaleLine, _tempSelectLine, _tempSelectCubes = [];
 
-function initDrawLine () {
+function initDrawLine() {
     initCursorVoxel(_cubeSize);
     createPlane();
 }
@@ -37,16 +37,16 @@ function initCursorVoxel(cursorSize) {
     }));
 }
 
-function stopDrawWall () {
-    if( _tempCubes.length < 2 ){
+function stopDrawWall() {
+    if (_tempCubes.length < 2) {
         scene.remove(_tempCubes[0]);
     }
 
-    if( _drawMode.mode == ControlModes.DrawContinuePoly){
+    if (_drawMode.mode == ControlModes.DrawContinuePoly) {
         _drawMode.selectedObject = undefined;
         redrawLine();
     } else {
-        $.each(_tempCubes , function(i , cube){
+        $.each(_tempCubes, function (i, cube) {
             scene.remove(cube);
         });
         scene.remove(_tempLine);
@@ -57,7 +57,7 @@ function stopDrawWall () {
     _tempLine = undefined;
 }
 
-function removeSelectWallBox () {
+function removeSelectWallBox() {
     scene.remove(_tempSelectLine);
     scene.remove(_cursorVoxel);
 
@@ -69,21 +69,21 @@ function removeSelectWallBox () {
     _tempSelectLine = undefined;
 }
 
-function removeWall (floor) {
-    if(floor.gridData && floor.gridData.polys.length < 1)return false;
+function removeWall(floor) {
+    if (floor.gridData && floor.gridData.polys.length < 1)return false;
 
     if (floor.gridData) {
-        $.each(floor.gridData.polys , function(i, poly){
+        $.each(floor.gridData.polys, function (i, poly) {
             scene.remove(poly.line);
-            $.each(poly.cubes , function(j , cube){
+            $.each(poly.cubes, function (j, cube) {
                 scene.remove(cube);
             })
         });
-        floor.gridData.polys=[];
+        floor.gridData.polys = [];
     }
 
 
-    $.each(_tempCubes , function(i , cube){
+    $.each(_tempCubes, function (i, cube) {
         scene.remove(cube);
     });
 
@@ -91,37 +91,36 @@ function removeWall (floor) {
     scene.remove(_cursorVoxel);
 
     _tempCubes = [];
-    _tempLine=undefined;
+    _tempLine = undefined;
 }
 
-function cutSelectedWall(topoly  , cutPoint ){
-    var polys  = _floors.floorData[0].gridData.polys;
-    var polycube = [] ,  polyline = [];
+function cutSelectedWall(topoly, cutPoint) {
+    var polys = _floors.floorData[0].gridData.polys;
     var toCutWall;
-    $.each(polys , function ( i , poly){
-        if(topoly.name === poly.line.name ){
+    $.each(polys, function (i, poly) {
+        if (topoly.name === poly.line.name) {
             toCutWall = poly;
             scene.remove(poly.line);
 
 
             _tempCubes = [];
-            $.each(poly.cubes , function(j , cube){
+            $.each(poly.cubes, function (j, cube) {
                 _tempCubes.push(cube);
 
-                if(j === (poly.cubes.length - 1) ){
+                if (j === (poly.cubes.length - 1)) {
                     _drawMode.selectedObject = undefined;
                     redrawLine();
                     commitPoly();
                     var index = polys.indexOf(poly);
-                    polys.splice(index,1);
+                    polys.splice(index, 1);
                     return false;
                 }
 
-                var nextpoint = poly.cubes[j+1];
-                var diff  = (cutPoint.x - cube.position.x)*(cutPoint.y - nextpoint.position.y) - (cutPoint.x - nextpoint.position.x)*(cutPoint.y - cube.position.y);
-                if ( diff <  3 && diff > -3 ){
+                var nextpoint = poly.cubes[j + 1];
+                var diff = (cutPoint.x - cube.position.x) * (cutPoint.y - nextpoint.position.y) - (cutPoint.x - nextpoint.position.x) * (cutPoint.y - cube.position.y);
+                if (diff < 3 && diff > -3) {
                     //console.log(cutPoint , cube , nextpoint);
-                    var voxel =createVoxelAt( cutPoint , "red");
+                    var voxel = createVoxelAt(cutPoint, "red");
                     scene.add(voxel);
                     _tempCubes.push(voxel);
                     _drawMode.selectedObject = undefined;
@@ -129,7 +128,7 @@ function cutSelectedWall(topoly  , cutPoint ){
                     commitPoly();
                     _tempCubes = [];
 
-                    var voxel =createVoxelAt( cutPoint , "red");
+                    var voxel = createVoxelAt(cutPoint, "red");
                     scene.add(voxel);
                     _tempCubes.push(voxel);
                 }
@@ -137,57 +136,10 @@ function cutSelectedWall(topoly  , cutPoint ){
             })
         }
     });
-
-    // console.log(toCutWall);
-    //var index = polys.indexOf(selectpoly);
-    //polys[index];
 }
 
-function cutSelectedWallOld(){
-    return false;
-    var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
-    for (var i = 0; i < polys.length; i++) {
-        //console.log(polys[i].cubes[0].position , polys[i].cubes[1].position);
-        var poly = polys[i];
-        for (var j = 0; j < (_tempSelectLine.geometry.vertices.length -1); j++) {
-            //console.log(_tempSelectLine.geometry.vertices[j] ,_tempSelectLine.geometry.vertices[j+1]);
-            var intersect = checkLineIntersection(
-                poly.cubes[0].position.x,
-                poly.cubes[0].position.y,
-                poly.cubes[1].position.x,
-                poly.cubes[1].position.y,
-                _tempSelectLine.geometry.vertices[j].x,
-                _tempSelectLine.geometry.vertices[j].y,
-                _tempSelectLine.geometry.vertices[j+1].x,
-                _tempSelectLine.geometry.vertices[j+1].y
-            );
-
-            if (intersect) {
-                //remove old line
-                scene.remove(poly.line);
-
-                var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
-
-                var intersectPoint = snapXYZ(intersect.x, intersect.y, z, _cubeSize);
-                _drawMode.selectedObject.point = intersectPoint; //_tempCubes.push(intersectPoint);
-                _tempCubes.push(poly.cubes[0]);
-                //console.log(_tempCubes);
-                // _tempCubes[0].material.color="green";
-                redrawLine();
-                commitPoly();
-                _tempCubes=[];
-                _tempCubes.push(poly.cubes[1]);
-                redrawLine();
-                commitPoly();
-
-
-            }
-        }
-    }
-}
-
-var drawModeRun = false, mouseDownDraw=!1 ,panMove  ;
-function onDocumentMouseDownDraw (event) {
+var drawModeRun = false, mouseDownDraw = !1, panMove;
+function onDocumentMouseDownDraw(event) {
     if (event.button == 0) {
         event.preventDefault();
 
@@ -199,12 +151,12 @@ function onDocumentMouseDownDraw (event) {
 
         switch (_drawMode.mode) {
             case ControlModes.PanSelect:
-                var intersects = raycaster.intersectObjects([plane] , true);
+                var intersects = raycaster.intersectObjects([plane], true);
                 panMove = intersects[0];
-                mouseDownDraw=!0;
+                mouseDownDraw = !0;
                 break;
             case ControlModes.DrawPoly:
-                showWallInf =!0;
+                showWallInf = !0;
                 var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
                 _drawMode.selectedObject = intersects[0];
                 var voxel = createVoxelAt(_drawMode.selectedObject.point, CubeColors.properties[_currentPen].hex);
@@ -212,7 +164,7 @@ function onDocumentMouseDownDraw (event) {
                 _tempCubes.push(voxel);
 
                 if (drawModeRun == true) {
-                    showWallInf =!1;
+                    showWallInf = !1;
                     drawModeRun = false;
                     redrawLine();
                     commitPoly();
@@ -223,7 +175,7 @@ function onDocumentMouseDownDraw (event) {
                 break;
 
             case ControlModes.DrawContinuePoly:
-                showWallInf =!0;
+                showWallInf = !0;
                 var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
                 _drawMode.selectedObject = intersects[0];
                 var voxel = createVoxelAt(_drawMode.selectedObject.point, CubeColors.properties[_currentPen].hex);
@@ -233,24 +185,24 @@ function onDocumentMouseDownDraw (event) {
                 redrawLine();
                 break;
             case ControlModes.CutPoly:
-                var polys  = _floors.floorData[0].gridData.polys;
-                var polycube = [] ,  polyline = [];
+                var polys = _floors.floorData[0].gridData.polys;
+                var polycube = [], polyline = [];
 
-                $.each(polys , function(i , poly){
-                    polyline.push( poly.line );
+                $.each(polys, function (i, poly) {
+                    polyline.push(poly.line);
                 });
                 var intersects = raycaster.intersectObjects(polyline, true);
-                if(intersects.length){
-                    cutSelectedWall(intersects[0].object , intersects[0].point);
+                if (intersects.length) {
+                    cutSelectedWall(intersects[0].object, intersects[0].point);
                 }
                 break;
 
             case ControlModes.Select:
-                showWallInf =!0;
+                showWallInf = !0;
                 selectWallFunc();
-                if (typeof singleSelectWall !==  "undefined") {
+                if (typeof singleSelectWall !== "undefined") {
                     removeSelectWallBox();
-                    mouseDownDraw=!0;
+                    mouseDownDraw = !0;
                     removeSelectWallBox();
                     selectDrawBox = false;
 
@@ -270,12 +222,6 @@ function onDocumentMouseDownDraw (event) {
                 scene.add(voxel);
 
                 _tempSelectCubes.push(voxel);
-
-                // if (_tempSelectCubes.length > 1) {
-                //     scene.remove(_tempSelectLine);
-                //     drawSelectWall(intersects[0]);
-                //     selectDrawBox = true;
-                // }
                 break;
 
             case ControlModes.MoveDevice:
@@ -311,19 +257,19 @@ function onDocumentMouseDownDraw (event) {
     }
 }
 
-function removeSelectedPoly () {
+function removeSelectedPoly() {
     /* single select wall remove */
-    var remPolys=[] , polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+    var remPolys = [], polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
 
-    if(selectedPolys.length){
-        $.each(selectedPolys , function(i , poly){
+    if (selectedPolys.length) {
+        $.each(selectedPolys, function (i, poly) {
             var index = polys.indexOf(poly);
             scene.remove(poly.line);
-            $.each(poly.cubes , function(i, cube) {
+            $.each(poly.cubes, function (i, cube) {
                 scene.remove(cube);
             });
 
-            polys.splice(index,1);
+            polys.splice(index, 1);
         });
 
         saveConfig(true);
@@ -331,32 +277,32 @@ function removeSelectedPoly () {
         return false;
     }
     /* single select wall remove */
-    if(typeof singleSelectWall !== "undefined"){
+    if (typeof singleSelectWall !== "undefined") {
         scene.remove(singleSelectWall.line);
-        $.each(singleSelectWall.cubes , function(i, cube) {
+        $.each(singleSelectWall.cubes, function (i, cube) {
             scene.remove(cube);
         });
         remPolys.push(singleSelectWall);
-    }else{
+    } else {
         /* multi select wall remove */
-        if(_tempSelectCubes.length !== 2)return false;
+        if (_tempSelectCubes.length !== 2)return false;
 
-        var  tpLeft ,btRight,z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
+        var tpLeft, btRight, z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
         if (_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
-            && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y ) {
-            tpLeft =_tempSelectCubes[1].position;
-            btRight =_tempSelectCubes[0].position;
-        } else if(_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
-            && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y ) {
-            tpLeft =_tempSelectCubes[0].position;
-            btRight =_tempSelectCubes[1].position;
-        } else if(_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
-            && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y ) {
+            && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y) {
+            tpLeft = _tempSelectCubes[1].position;
+            btRight = _tempSelectCubes[0].position;
+        } else if (_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
+            && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y) {
+            tpLeft = _tempSelectCubes[0].position;
+            btRight = _tempSelectCubes[1].position;
+        } else if (_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
+            && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y) {
 
             tpLeft = snapXYZ(_tempSelectCubes[1].position.x, _tempSelectCubes[0].position.y, z, _cubeSize);
             btRight = snapXYZ(_tempSelectCubes[0].position.x, _tempSelectCubes[1].position.y, z, _cubeSize);
         } else if (_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
-            && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y ) {
+            && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y) {
 
             tpLeft = snapXYZ(_tempSelectCubes[0].position.x, _tempSelectCubes[1].position.y, z, _cubeSize);
             btRight = snapXYZ(_tempSelectCubes[1].position.x, _tempSelectCubes[0].position.y, z, _cubeSize);
@@ -364,16 +310,16 @@ function removeSelectedPoly () {
         }
 
         for (var i = 0; i < polys.length; i++) {
-            var inP=false;
+            var inP = false;
             for (var j = 0; j < polys[i].cubes.length; j++) {
                 var cube = polys[i].cubes[j];
-                inP = checkBound(cube.position , tpLeft,btRight);
-                if(inP === false )break;
+                inP = checkBound(cube.position, tpLeft, btRight);
+                if (inP === false)break;
             }
 
             if (inP == true) {
                 scene.remove(polys[i].line);
-                $.each(polys[i].cubes , function(i, cube) {
+                $.each(polys[i].cubes, function (i, cube) {
                     scene.remove(cube);
                 });
                 remPolys.push(polys[i]);
@@ -381,46 +327,46 @@ function removeSelectedPoly () {
         }
     }
 
-    $.each(remPolys , function(i , poly){
+    $.each(remPolys, function (i, poly) {
         var index = polys.indexOf(poly);
-        polys.splice(index,1);
+        polys.splice(index, 1);
     });
 
     saveConfig(true);
     removeSelectWallBox();
 }
 
-var selectedPolys=[];
-function showSelectedPoly () {
-    selectedPolys=[];
+var selectedPolys = [];
+function showSelectedPoly() {
+    selectedPolys = [];
     /* single select wall remove */
-    var remPolys=[] , polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
-    if(typeof singleSelectWall !== "undefined"){
+    var remPolys = [], polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+    if (typeof singleSelectWall !== "undefined") {
         scene.remove(singleSelectWall.line);
-        $.each(singleSelectWall.cubes , function(i, cube) {
+        $.each(singleSelectWall.cubes, function (i, cube) {
             scene.remove(cube);
         });
         remPolys.push(singleSelectWall);
-    }else{
+    } else {
         /* multi select wall remove */
-        if(_tempSelectCubes.length !== 2)return false;
+        if (_tempSelectCubes.length !== 2)return false;
 
-        var  tpLeft ,btRight,z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
+        var tpLeft, btRight, z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
         if (_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
-            && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y ) {
-            tpLeft =_tempSelectCubes[1].position;
-            btRight =_tempSelectCubes[0].position;
-        } else if(_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
-            && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y ) {
-            tpLeft =_tempSelectCubes[0].position;
-            btRight =_tempSelectCubes[1].position;
-        } else if(_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
-            && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y ) {
+            && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y) {
+            tpLeft = _tempSelectCubes[1].position;
+            btRight = _tempSelectCubes[0].position;
+        } else if (_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
+            && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y) {
+            tpLeft = _tempSelectCubes[0].position;
+            btRight = _tempSelectCubes[1].position;
+        } else if (_tempSelectCubes[0].position.x > _tempSelectCubes[1].position.x
+            && _tempSelectCubes[0].position.y < _tempSelectCubes[1].position.y) {
 
             tpLeft = snapXYZ(_tempSelectCubes[1].position.x, _tempSelectCubes[0].position.y, z, _cubeSize);
             btRight = snapXYZ(_tempSelectCubes[0].position.x, _tempSelectCubes[1].position.y, z, _cubeSize);
         } else if (_tempSelectCubes[0].position.x < _tempSelectCubes[1].position.x
-            && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y ) {
+            && _tempSelectCubes[0].position.y > _tempSelectCubes[1].position.y) {
 
             tpLeft = snapXYZ(_tempSelectCubes[0].position.x, _tempSelectCubes[1].position.y, z, _cubeSize);
             btRight = snapXYZ(_tempSelectCubes[1].position.x, _tempSelectCubes[0].position.y, z, _cubeSize);
@@ -428,17 +374,17 @@ function showSelectedPoly () {
         }
 
         for (var i = 0; i < polys.length; i++) {
-            var inP=false;
+            var inP = false;
             for (var j = 0; j < polys[i].cubes.length; j++) {
                 var cube = polys[i].cubes[j];
-                inP = checkBound(cube.position , tpLeft,btRight);
-                if(inP === false )break;
+                inP = checkBound(cube.position, tpLeft, btRight);
+                if (inP === false)break;
             }
 
             if (inP == true) {
                 polys[i].line.material.color = new THREE.Color('silver');
                 //scene.remove(polys[i].line);
-                $.each(polys[i].cubes , function(i, cube) {
+                $.each(polys[i].cubes, function (i, cube) {
                     cube.material.color = new THREE.Color('silver');
                     //scene.remove(cube);
                 });
@@ -448,8 +394,7 @@ function showSelectedPoly () {
     }
 
 
-
-    $.each(selectedPolys , function(i , poly){
+    $.each(selectedPolys, function (i, poly) {
         var index = polys.indexOf(poly);
         //polys.splice(index,1);
     });
@@ -459,29 +404,11 @@ function showSelectedPoly () {
 }
 
 
-
-function checkBound (point, tpLeft , btRight) {
+function checkBound(point, tpLeft, btRight) {
     if (tpLeft.x <= point.x && point.x <= btRight.x && tpLeft.y <= point.y && point.y <= btRight.y) {
         return true;
     }
     return false;
-}
-
-function selectPoly (id) {
-    
-    var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
-    _selectedPoly = findPoly(id);
-    if (_selectedPoly === undefined) {
-        return;
-    }
-
-
-    _tempLine = _selectedPoly.line; //for redrawline
-    _tempCubes = _selectedPoly.cubes; //for redrawline
-    // console.log(_tempLine.name);
-    if (_tempLine !== undefined) {
-        scene.remove(_tempLine);
-    }
 }
 
 function findPoly(id) {
@@ -494,9 +421,9 @@ function findPoly(id) {
     return undefined;
 }
 
-function moveLine(polyline){
+function moveLine(polyline) {
     var geometry = new THREE.Geometry();
-    var material = new THREE.LineBasicMaterial({color: "silver" , linewidth: 1});    // Default line color. Should be set to the poly's color or the color of the cubes.
+    var material = new THREE.LineBasicMaterial({color: "silver", linewidth: 1});    // Default line color. Should be set to the poly's color or the color of the cubes.
     var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
 
     var endPoint, firstPoint;
@@ -511,11 +438,11 @@ function moveLine(polyline){
     }
 
     polyline.geometry = geometry;
-    polyline.material =material;
+    polyline.material = material;
     _tempLine = polyline;
 }
 
-function redrawLine () {
+function redrawLine() {
     if (_tempCubes.length < 1) {
         return false;
     }
@@ -526,7 +453,7 @@ function redrawLine () {
     var endPoint, firstPoint;
 
     for (var i = 0; i < _tempCubes.length; i++) {
-        if(typeof endPoint  !== "undefined"){
+        if (typeof endPoint !== "undefined") {
             firstPoint = endPoint;
         }
         endPoint = snapPoint(_tempCubes[i].position, _cubeSize);
@@ -535,8 +462,8 @@ function redrawLine () {
     }
 
     //if (_drawMode.mode === ControlModes.DrawPoly && typeof endPoint !== "undefined") {
-    if (typeof _drawMode.selectedObject  !== "undefined"){
-        if(typeof endPoint  !== "undefined"){
+    if (typeof _drawMode.selectedObject !== "undefined") {
+        if (typeof endPoint !== "undefined") {
             firstPoint = endPoint;
         }
         endPoint = snapXYZ(_drawMode.selectedObject.point.x, _drawMode.selectedObject.point.y, z, _cubeSize);
@@ -548,122 +475,78 @@ function redrawLine () {
     }
 
 
-    if( _drawMode.mode == ControlModes.DrawContinuePoly && typeof continueLinePoly !== "undefined"){
+    if (_drawMode.mode == ControlModes.DrawContinuePoly && typeof continueLinePoly !== "undefined") {
         _tempLine = continueLinePoly.line;
         _tempLine.geometry = geometry;
         _tempLine.material = material;
-    }else{
+    } else {
         if (_tempLine !== undefined) {
             scene.remove(_tempLine);
         }
 
         _tempLine = new THREE.Line(geometry, material);
-        _tempLine.name = "tempLine_"+((new Date).getMilliseconds());
+        _tempLine.name = "tempLine_" + ((new Date).getMilliseconds());
         scene.add(_tempLine);
         //console.log(_tempLine.name , scene.getO);
     }
-    //reCalcWallInfo();
-
-    // if (typeof firstPoint !== "undefined") {
-    // }
-    if ( showWallInf ){
-        wallInfoCalc( firstPoint , endPoint , "show" );
-    }else{
+    if (showWallInf) {
+        wallInfoCalc(firstPoint, endPoint, "show");
+    } else {
         $("div[id^=showWallPos_]").remove();
     }
 }
 
 var showWallInf = false;
-function wallInfoCalc(firstPoint , endPoint,  wallPointId){
+function wallInfoCalc(firstPoint, endPoint, wallPointId) {
     var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
     var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
-    var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
-    var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
+    var distO = Math.sqrt(Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y - firstPoint.y), 2));
+    var dist = Math.sqrt(Math.pow(( endPoint.x / floorScale - firstPoint.x / floorScale), 2) + Math.pow((endPoint.y / floorScale - firstPoint.y / floorScale), 2));
     //console.log(distO , dist);
-    var x = (endPoint.x + firstPoint.x)/2;
-    var y =  (endPoint.y + firstPoint.y)/2;
+    var x = (endPoint.x + firstPoint.x) / 2;
+    var y = (endPoint.y + firstPoint.y) / 2;
 
     endPoint = snapXYZ(x, y, z, _cubeSize);
     var wallname = wallPointId;
-    if(drawModeRun || _drawMode.mode == ControlModes.DrawContinuePoly){
+    if (drawModeRun || _drawMode.mode == ControlModes.DrawContinuePoly) {
         wallname = "_temp";
     }
 
-    if(showWallInf){
-        if (typeof _drawMode.selectedObject  !== "undefined"){
-            showWallInfo(endPoint , wallname ,dist);
-        }else{
-            setTimeout(function(){
-                showWallInfo(endPoint , wallname ,dist);
-            } , 1000);
+    if (showWallInf) {
+        if (typeof _drawMode.selectedObject !== "undefined") {
+            showWallInfo(endPoint, wallname, dist);
+        } else {
+            setTimeout(function () {
+                showWallInfo(endPoint, wallname, dist);
+            }, 1000);
         }
 
     }
 }
 
-
-function showWallInfo2(endPoint , wallname ,dist){
-    var fontLoader = new THREE.FontLoader();
-    var textname="wallinfo_"+wallname;
-    var textObj = scene.getObjectByName(textname);
-    if(typeof textObj == "object"){
-        //text.position.set(endPoint.x ,endPoint.y, endPoint.z);
-        scene.remove(textObj);
-    }
-
-    fontLoader.load("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json",function(tex){
-        var  textGeo = new THREE.TextGeometry( Math.trunc(dist) , {
-                size: 10,
-                height: 5,
-                curveSegments: 6,
-                font: tex,
-        });
-        var  color = new THREE.Color();
-        color.setRGB(255, 250, 250);
-        var  textMaterial = new THREE.MeshBasicMaterial({ color: color });
-        var  text = new THREE.Mesh(textGeo , textMaterial);
-        text.position.set(endPoint.x ,endPoint.y, endPoint.z);
-        text.name = textname;
-        //debugger;
-        scene.add(text);
-    });
-
-
-    /*
-    var material = new THREE.MeshPhongMaterial({
-        color: 0xdddddd
-    });
-    var textGeom = new THREE.TextGeometry( 'Hello World!', {
-        font: 'your font name' // Must be lowercase!
-    });
-    var textMesh = new THREE.Mesh( textGeom, material );
-    scene.add( textMesh );
-    */
-}
-
-function showWallInfo(endPoint , wallname ,dist) {
+function showWallInfo(endPoint, wallname, dist) {
     // console.log("showWallInfo" ,endPoint);
     var vector = new THREE.Vector3();
     var widthHalf = 0.5 * renderer.context.canvas.width;
     var heightHalf = 0.5 * renderer.context.canvas.height;
 
     var container;
-    var divId  ="showWallPos_"+wallname;
-    var divComp=  $("#"+divId);
-    if(divComp.length > 0 ){
-        container  = divComp[0];
-    }else{
+    var divId = "showWallPos_" + wallname;
+    var divComp = $("#" + divId);
+    if (divComp.length > 0) {
+        container = divComp[0];
+    } else {
         container = document.createElement("div");
-        container.id=divId;
+        container.id = divId;
         container.style.cssFloat = "width:80px;opacity:0.9;cursor:pointer";
         container.style.position = 'absolute';
         container.style.width = '40px';
     }
-    $(container).text( Math.trunc(dist) ).css({ 'color':'white' });
+    $(container).text(Math.trunc(dist)).css({'color': 'white'});
 
     $("body").append(container);
 
-    var voxel =createVoxelAt (endPoint, "red");
+    var voxel = createVoxelAt(endPoint, "red");
     voxel.updateMatrixWorld();
     vector.setFromMatrixPosition(voxel.matrixWorld);
     vector.project(camera);
@@ -673,82 +556,38 @@ function showWallInfo(endPoint , wallname ,dist) {
 
     container.style.left = vector.x + "px";
     container.style.top = vector.y + 45 + "px";
-
-
-
-    /*
-    var container = document.createElement("div");
-    container.className="showWallPos";
-    container.style.cssFloat = "width:80px;opacity:0.9;cursor:pointer";
-    container.style.position = 'absolute';
-    container.style.width = '100px';
-
-    device.mesh.updateMatrixWorld();
-    vector.setFromMatrixPosition(device.mesh.matrixWorld);
-    vector.project(_camera);
-    vector.x = (vector.x * widthHalf) + widthHalf;
-    vector.y = -(vector.y * heightHalf) + heightHalf;
-
-    container.style.left = vector.x + "px";
-    container.style.top = vector.y + 40 + "px";
-
-
-    */
-}
-
-function reCalcWallInfo(){
-    var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
-
-    $("div[id^=showWallPos_]").remove();
-    $.each(scene.children  , function( i , obj){
-        if(obj.type == "Line"){
-            $.each(polys , function(i , poly){
-                if(obj == poly.line){
-                    var firstPoint  , endPoint;
-                    $.each(poly.cubes , function(i , cube){
-                        endPoint = cube.position;
-                        if(typeof firstPoint !== "undefined"){
-                            console.log(firstPoint , endPoint);
-                            wallInfoCalc(firstPoint , endPoint , cube.id);
-                        }
-                        firstPoint = endPoint;
-                    });
-                }
-            })
-        }
-    });
 }
 
 var continueLinePoly;
-function commitPoly () {
-    if( _tempCubes.length < 2 ){
+function commitPoly() {
+    if (_tempCubes.length < 2) {
         return false;
     }
 
-    var random = Math.floor(Math.random() * 1000) + 1  ;
+    var random = Math.floor(Math.random() * 1000) + 1;
     var poly = {
         polyId: _tempCubes[0].id || random,
         cubes: _tempCubes,
-        line:  _tempLine,
+        line: _tempLine,
         color: _tempCubes[0].pen,
-        lineId:_tempLine.id
+        lineId: _tempLine.id
     };
 
     if (typeof continueLinePoly == "undefined") {
-        if(typeof arguments[0] == "undefined"){
+        if (typeof arguments[0] == "undefined") {
             _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
-        }else{
+        } else {
             _floors.floorData[_floors.selectedFloorIndex].gridData.polys[arguments[0]] = poly;
         }
 
-        if(_drawMode.mode == ControlModes.DrawContinuePoly) {
+        if (_drawMode.mode == ControlModes.DrawContinuePoly) {
             //continueLinePoly = poly.polyId;
             continueLinePoly = poly;
         }
     } else {
-        var  contPoly, polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
-        $.each(polys , function(i, eachpoly){
-            if(eachpoly.polyId == continueLinePoly.polyId ){
+        var contPoly, polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+        $.each(polys, function (i, eachpoly) {
+            if (eachpoly.polyId == continueLinePoly.polyId) {
                 var index = polys.indexOf(eachpoly);
                 polys[index] = poly;
                 contPoly = eachpoly;
@@ -757,14 +596,14 @@ function commitPoly () {
     }
 
     saveConfig(true);
-    if (_drawMode.mode !== ControlModes.DrawContinuePoly ) {
+    if (_drawMode.mode !== ControlModes.DrawContinuePoly) {
         _tempCubes = [];
         _tempLine = undefined;
     }
 }
 
 //initgrid function Cartographer
-function createPlane () {
+function createPlane() {
     var index = 0;
     if (_floors.selectedFloorIndex > 0) {
         index = _floors.selectedFloorIndex || 0;
@@ -796,7 +635,7 @@ function createPlane () {
 }
 
 var selectPolyCubeIndex, tmpLineArr = [];
-function onDocumentMouseMoveDraw (event) {
+function onDocumentMouseMoveDraw(event) {
     event.preventDefault();
 
     _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
@@ -805,34 +644,34 @@ function onDocumentMouseMoveDraw (event) {
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
     var intersects = raycaster.intersectObject(plane, true);
     if (intersects.length > 0) {
-        if( ControlModes.PanSelect  === _drawMode.mode && typeof panMove !== "undefined" && mouseDownDraw ){
+        if (ControlModes.PanSelect === _drawMode.mode && typeof panMove !== "undefined" && mouseDownDraw) {
             var touchpoint = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             // console.log(touchpoint)
-            var xdiff =  touchpoint.x - panMove.point.x;
-            var ydiff =  touchpoint.y - panMove.point.y;
+            var xdiff = touchpoint.x - panMove.point.x;
+            var ydiff = touchpoint.y - panMove.point.y;
 
             var scenex = scene.position.x + xdiff;
             var sceney = scene.position.y + ydiff;
             var scenePoint = snapPoint(new THREE.Vector3(scenex, sceney, plane.position.z + _cubeSize / 2), _cubeSize);
 
-            scene.position.set(scenePoint.x , scenePoint.y , scenePoint.z);
-            panMove = {'point' : touchpoint};
+            scene.position.set(scenePoint.x, scenePoint.y, scenePoint.z);
+            panMove = {'point': touchpoint};
             //scene.position.set(point.x , point.y , point.z);
-        }else if(selectedPolys.length < 1 && mouseDownDraw && typeof selectPolyCube !== "undefined"){
+        } else if (selectedPolys.length < 1 && mouseDownDraw && typeof selectPolyCube !== "undefined") {
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
-            _tempCubes=[];
-            $.each(singleSelectWall.cubes , function(i ,cube){
-                if(cube.name == selectPolyCube.name ){
+            _tempCubes = [];
+            $.each(singleSelectWall.cubes, function (i, cube) {
+                if (cube.name == selectPolyCube.name) {
                     cube.position.copy(point);
                     _tempCubes.push(cube);
-                }else{
+                } else {
                     _tempCubes.push(cube);
                 }
             });
             scene.remove(singleSelectWall.line);
-            var polys  = _floors.floorData[0].gridData.polys;
-            $.each(polys , function(i , poly){
-                if(poly.polyId == singleSelectWall.polyId ){
+            var polys = _floors.floorData[0].gridData.polys;
+            $.each(polys, function (i, poly) {
+                if (poly.polyId == singleSelectWall.polyId) {
                     selectPolyCubeIndex = polys.indexOf(poly);
                     //polys.splice(selectPolyCubeIndex,1);
                     return false;
@@ -842,19 +681,18 @@ function onDocumentMouseMoveDraw (event) {
             redrawLine();
 
 
-
-        }else if(mouseDownDraw && typeof singleSelectWall !== "undefined"){
-            _drawMode.selectedObject  = undefined;
+        } else if (mouseDownDraw && typeof singleSelectWall !== "undefined") {
+            _drawMode.selectedObject = undefined;
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             var touchPoint = singleSelectWall.touchpoint;
 
-            if(selectedPolys.length < 1 || typeof selectPolyCube !== "undefined" ){
-                 $.each( _tempCubes  ,  function( i , cube){
+            if (selectedPolys.length < 1 || typeof selectPolyCube !== "undefined") {
+                $.each(_tempCubes, function (i, cube) {
                     scene.remove(cube);
-                 });
+                });
 
-                 _tempCubes=[];
-                 $.each(singleSelectWall.cubes , function(i ,cube){
+                _tempCubes = [];
+                $.each(singleSelectWall.cubes, function (i, cube) {
                     var xdiff = cube.position.x - touchPoint.x;
                     var ydiff = cube.position.y - touchPoint.y;
 
@@ -863,7 +701,7 @@ function onDocumentMouseMoveDraw (event) {
                     var cubey = point.y + ydiff;
                     var voxelpoint = snapPoint(new THREE.Vector3(cubex, cubey, plane.position.z + _cubeSize / 2), _cubeSize);
 
-                    var newCube = createVoxelAt(voxelpoint  , "silver");
+                    var newCube = createVoxelAt(voxelpoint, "silver");
                     _tempCubes.push(newCube);
                     scene.add(newCube);
 
@@ -873,21 +711,21 @@ function onDocumentMouseMoveDraw (event) {
                 scene.remove(singleSelectWall.line);
                 redrawLine();
 
-            }else{
+            } else {
 
-                var polys  = _floors.floorData[0].gridData.polys;
-                $.each(selectedPolys , function(i , poly){
+                var polys = _floors.floorData[0].gridData.polys;
+                $.each(selectedPolys, function (i, poly) {
                     var index = polys.indexOf(poly);
 
                     //scene.remove(poly.line);
-                    if(tmpLineArr.length && typeof tmpLineArr[index] !== "undefined"){
-                        $.each(tmpLineArr[index]._tempCubes , function( i , cube ){
+                    if (tmpLineArr.length && typeof tmpLineArr[index] !== "undefined") {
+                        $.each(tmpLineArr[index]._tempCubes, function (i, cube) {
                             scene.remove(cube);
                         });
                     }
 
                     _tempCubes = [];
-                    $.each(poly.cubes , function(i ,cube){
+                    $.each(poly.cubes, function (i, cube) {
                         var xdiff = cube.position.x - touchPoint.x;
                         var ydiff = cube.position.y - touchPoint.y;
 
@@ -898,7 +736,7 @@ function onDocumentMouseMoveDraw (event) {
 
                         scene.remove(cube);
 
-                        var newCube = createVoxelAt(voxelpoint  , "silver");
+                        var newCube = createVoxelAt(voxelpoint, "silver");
                         _tempCubes.push(newCube);
                         scene.add(newCube);
 
@@ -906,12 +744,12 @@ function onDocumentMouseMoveDraw (event) {
                     });
                     moveLine(poly.line);
                     tmpLineArr[index] = {
-                        'poly':poly,
+                        'poly': poly,
                         '_tempLine': _tempLine, //$.extend({} , _tempLine) ,
                         '_tempCubes': _tempCubes, //$.extend([] , _tempCubes)
                     };
                     _tempCubes = [];
-                    _tempLine=undefined;
+                    _tempLine = undefined;
                 });
             }
 
@@ -925,20 +763,20 @@ function onDocumentMouseMoveDraw (event) {
 
             _drawMode.selectedObject = intersects[0];
 
-            if(_tempCubes.length < 1)return false;
+            if (_tempCubes.length < 1)return false;
             redrawLine();
-            } else if (_drawMode.mode == ControlModes.DrawContinuePoly ) {
+        } else if (_drawMode.mode == ControlModes.DrawContinuePoly) {
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             _cursorVoxel.position.x = point.x;
             _cursorVoxel.position.y = point.y;
             _cursorVoxel.position.z = point.z;
             _cursorVoxel.visible = true;
             _drawMode.selectedObject = intersects[0];
-            if(_tempCubes.length < 1)return false;
+            if (_tempCubes.length < 1)return false;
             redrawLine();
         } else if (_drawMode.mode == ControlModes.Select && _tempSelectCubes.length) {
-            if(selectDrawBox)return false;
-            if( _tempSelectLine !== "undefined"){
+            if (selectDrawBox)return false;
+            if (_tempSelectLine !== "undefined") {
                 scene.remove(_tempSelectLine);
             }
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
@@ -973,7 +811,7 @@ function onDocumentMouseMoveDraw (event) {
 
             endPoint = snapPoint(_tempScaleCube[0].position, _cubeSize);
             geometry.vertices.push(endPoint);
-            
+
             endPoint = snapXYZ(_drawMode.selectedObject.point.x, _drawMode.selectedObject.point.y, z, _cubeSize);
             geometry.vertices.push(endPoint);
 
@@ -983,15 +821,9 @@ function onDocumentMouseMoveDraw (event) {
 
             _tempScaleLine = new THREE.Line(geometry, material);
             _tempScaleLine.name = "tempScaleLine";
-            scene.add( _tempScaleLine );
+            scene.add(_tempScaleLine);
         }
     }
-}
-
-function removePoint(_tempcube){
-    $("#showWallPos_"+_tempcube.id).remove();
-    scene.remove(_tempcube);
-
 }
 
 function onDocumentMouseUpDraw(event) {
@@ -1030,68 +862,67 @@ function onDocumentMouseUpDraw(event) {
             }
         }
     } else if (tmpLineArr.length > 0) {
-        var index,polys  = _floors.floorData[0].gridData.polys;
-        $.each(tmpLineArr , function(i , line){
-            if(typeof line !== "undefined"){
+        var index, polys = _floors.floorData[0].gridData.polys;
+        $.each(tmpLineArr, function (i, line) {
+            if (typeof line !== "undefined") {
                 var poly = findPoly(line._tempLine.id);
                 index = polys.indexOf(poly);
-                polys[index].cubes =  line._tempCubes;
-                polys[index].line =  line._tempLine;
+                polys[index].cubes = line._tempCubes;
+                polys[index].line = line._tempLine;
             }
             //line._tempLine
         });
-        tmpLineArr=[];
+        tmpLineArr = [];
         saveConfig(true);
 
     } else if (typeof _selectedDragDevice !== "undefined") {
         _selectedDragDevice = undefined;
         saveConfig(true);
-    }else if (typeof singleSelectWall !== "undefined") {
-        if(typeof _tempLine == "undefined"){
+    } else if (typeof singleSelectWall !== "undefined") {
+        if (typeof _tempLine == "undefined") {
             selectedPolys = [];
             selectedPolys.push(singleSelectWall);
             singleSelectWall = undefined;
             return false;
         }
-        var index, polys  = _floors.floorData[0].gridData.polys;
-        $.each(polys , function(i , poly){
-            if(poly.polyId == singleSelectWall.polyId ){
+        var index, polys = _floors.floorData[0].gridData.polys;
+        $.each(polys, function (i, poly) {
+            if (poly.polyId == singleSelectWall.polyId) {
                 index = polys.indexOf(poly);
                 //polys.splice(index,1);
                 return false;
             }
         });
 
-        if(typeof _tempLine !== "undefined"){
+        if (typeof _tempLine !== "undefined") {
             _tempLine.material.color = new THREE.Color("red");
         }
 
-        $.each(_tempCubes,  function( i , cube ){
-            cube.material.color =  new THREE.Color("red");
+        $.each(_tempCubes, function (i, cube) {
+            cube.material.color = new THREE.Color("red");
         });
 
         commitPoly(index);
         singleSelectWall = undefined;
-        }else if (typeof selectPolyCube !== "undefined") {
-        if(intersects.length){
+    } else if (typeof selectPolyCube !== "undefined") {
+        if (intersects.length) {
             // var voxel = createVoxelAt(intersects[0].point, "red");
             // scene.add(voxel);
             //_tempCubes.push(voxel);
         }
 
-        if(typeof _tempLine !== "undefined"){
+        if (typeof _tempLine !== "undefined") {
             _tempLine.material.color = new THREE.Color("red");
         }
 
-        $.each(_tempCubes,  function( i , cube ){
-            cube.material.color =  new THREE.Color("red");
+        $.each(_tempCubes, function (i, cube) {
+            cube.material.color = new THREE.Color("red");
         });
         commitPoly(selectPolyCubeIndex);
-        selectPolyCube=undefined;
+        selectPolyCube = undefined;
 
 
-
-    }else if (_drawMode.mode == ControlModes.Select) {
+    } else if (_drawMode.mode == ControlModes.Select) {
 
         _drawMode.selectedObject = intersects[0];
         var voxel = createVoxelAt(_drawMode.selectedObject.point, "silver");
@@ -1105,11 +936,11 @@ function onDocumentMouseUpDraw(event) {
             selectDrawBox = true;
             var xdiff = _tempSelectCubes[0].position.x - intersects[0].point.x;
             var ydiff = _tempSelectCubes[0].position.y - intersects[0].point.y;
-            if( (xdiff > 10 || xdiff < -10) && (ydiff > 10 || ydiff < -10) ){
+            if ((xdiff > 10 || xdiff < -10) && (ydiff > 10 || ydiff < -10)) {
                 showSelectedPoly();
 
             }
-            $.each(_tempSelectCubes , function( i,  cube){
+            $.each(_tempSelectCubes, function (i, cube) {
                 scene.remove(cube);
             });
             _tempSelectCubes = [];
@@ -1118,10 +949,10 @@ function onDocumentMouseUpDraw(event) {
         scene.remove(_tempSelectLine);
 
     }
-    mouseDownDraw=!1;
+    mouseDownDraw = !1;
 }
 
-function drawSelectWall (selectedObject) {
+function drawSelectWall(selectedObject) {
     var geometry = new THREE.Geometry();
     var material = new THREE.LineBasicMaterial({color: "silver"});    // Default line color. Should be set to the poly's color or the color of the cubes.
     var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
@@ -1141,27 +972,27 @@ function drawSelectWall (selectedObject) {
 
 
     //point four
-    endPoint = snapXYZ(selectedObject.point.x, _tempSelectCubes[0].position.y,  z, _cubeSize);
+    endPoint = snapXYZ(selectedObject.point.x, _tempSelectCubes[0].position.y, z, _cubeSize);
     geometry.vertices.push(endPoint);
 
     geometry.vertices.push(endPointFirst);
 
 
-    if (_tempSelectCubes.length > 0){
+    if (_tempSelectCubes.length > 0) {
         material.color = _tempSelectCubes[0].material.color;
     }
     _tempSelectLine = new THREE.Line(geometry, material);
     _tempSelectLine.name = "tempSelectLine";
-    scene.add( _tempSelectLine );
+    scene.add(_tempSelectLine);
 
 }
 
-function lastTouchPoint () {
+function lastTouchPoint() {
     return lastMouseClick;
 }
 
-function getTouchPoint (x , y) {
-    if( typeof plane == "undefined" ){
+function getTouchPoint(x, y) {
+    if (typeof plane == "undefined") {
         createPlane();
     }
 
@@ -1175,10 +1006,10 @@ function getTouchPoint (x , y) {
     if (intersects.length > 0) {
         point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
     }
-    return  point;
+    return point;
 }
 
-function createVoxelAt (point, color) {
+function createVoxelAt(point, color) {
     var material = new THREE.MeshBasicMaterial({
         transparent: true,
         opacity: 0.5,
@@ -1202,21 +1033,11 @@ function createVoxelAt (point, color) {
     return voxel;
 }
 
-function selectRect (){
-    var geometry = new THREE.PlaneGeometry(2, 1);
-    var material = new THREE.MeshBasicMaterial({
-        color: 0xDB1E1E
-        //wireframe: true
-    });
-    var mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
-}
-
-function loadWalls (polys) {
+function loadWalls(polys) {
     var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
     if (polys.length) {
         $.each(polys, function (i, poly) {
-            _tempCubes=[];
+            _tempCubes = [];
             $.each(poly.points, function (i, point) {
                 var snpoint = snapXYZ(point.x, point.y, z, _cubeSize);
                 var voxel = createVoxelAt(snpoint, CubeColors.properties[_currentPen].hex);
@@ -1229,18 +1050,18 @@ function loadWalls (polys) {
     }
 }
 
-function snapXYZ (x, y, z, gridSize) {
+function snapXYZ(x, y, z, gridSize) {
     return new THREE.Vector3(x, y, z)
         .divideScalar(gridSize).floor().multiplyScalar(gridSize).addScalar(gridSize / 2);
 }
 
-function snapPoint (point, gridSize) {
+function snapPoint(point, gridSize) {
     return new THREE.Vector3(point.x, point.y, point.z)
         .divideScalar(gridSize).floor().multiplyScalar(gridSize).addScalar(gridSize / 2);
 }
 
 
-function drawMode () {
+function drawMode() {
     var mode = 0;
     var startX = undefined;
     var startY = undefined;
@@ -1249,7 +1070,7 @@ function drawMode () {
     var mouseY = undefined;
 }
 
-function checkLineIntersection (line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY) {
+function checkLineIntersection(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY) {
     // if the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
     var denominator, a, b, numerator1, numerator2, result = {
         x: null,
@@ -1259,7 +1080,7 @@ function checkLineIntersection (line1StartX, line1StartY, line1EndX, line1EndY, 
     };
     denominator = ((line2EndY - line2StartY) * (line1EndX - line1StartX)) - ((line2EndX - line2StartX) * (line1EndY - line1StartY));
     if (denominator == 0) {
-        if( result.onLine1 === true && result.onLine1 === true ){
+        if (result.onLine1 === true && result.onLine1 === true) {
             return result;
         }
     }
@@ -1287,7 +1108,7 @@ function checkLineIntersection (line1StartX, line1StartY, line1EndX, line1EndY, 
         result.onLine2 = true;
     }
     // if line1 and line2 are segments, they intersect if both of the above are true
-    if( result.onLine1 === true && result.onLine1 === true ){
+    if (result.onLine1 === true && result.onLine1 === true) {
         // console.log(result);
         return result;
     }
@@ -1296,17 +1117,17 @@ function checkLineIntersection (line1StartX, line1StartY, line1EndX, line1EndY, 
 }
 
 
-var singleSelectWall ,selectPolyCube;
-function selectWallFunc () {
-    try{
-        if(typeof _floors.floorData[0].gridData !== "undefined" && _floors.floorData[0].gridData.polys.length ){
-            var polys  = _floors.floorData[0].gridData.polys;
-            var polycube = [],  polyline = [];
-            $.each(polys , function(i , poly){
+var singleSelectWall, selectPolyCube;
+function selectWallFunc() {
+    try {
+        if (typeof _floors.floorData[0].gridData !== "undefined" && _floors.floorData[0].gridData.polys.length) {
+            var polys = _floors.floorData[0].gridData.polys;
+            var polycube = [], polyline = [];
+            $.each(polys, function (i, poly) {
                 poly.line.material.color = new THREE.Color("red");
-                polyline.push( poly.line );
-                if(poly.cubes.length){
-                    $.each(poly.cubes , function(j , cube){
+                polyline.push(poly.line);
+                if (poly.cubes.length) {
+                    $.each(poly.cubes, function (j, cube) {
                         polycube.push(cube);
                         cube.material.color = new THREE.Color("red");
                     });
@@ -1315,34 +1136,34 @@ function selectWallFunc () {
             });
 
             var singleWall;
-            if(polyline.length){
+            if (polyline.length) {
                 var intersects = raycaster.intersectObjects(polyline, true);
                 if (intersects.length > 0) {
-                    $.each(polys , function(i , poly){
-                        if(poly.line.name === intersects[0].object.name){
+                    $.each(polys, function (i, poly) {
+                        if (poly.line.name === intersects[0].object.name) {
                             poly.line.material.color = new THREE.Color("silver");
                             singleWall = poly;//return false;
                             singleWall.touchpoint = intersects[0].point;
-                            $.each(poly.cubes , function(j , cube){
-                                cube.material.color = new THREE.Color("silver"); 
+                            $.each(poly.cubes, function (j, cube) {
+                                cube.material.color = new THREE.Color("silver");
                             });
                         }
                     });
                 }
-                
+
             }
 
             if (polycube.length) {
                 var intersects = raycaster.intersectObjects(polycube, true);
                 if (intersects.length > 0) {
-                    $.each(polys , function(i , poly){
-                        if(poly.cubes.length){
-                            $.each(poly.cubes , function(j , cube){
-                                if(intersects[0].object.name == cube.name){
+                    $.each(polys, function (i, poly) {
+                        if (poly.cubes.length) {
+                            $.each(poly.cubes, function (j, cube) {
+                                if (intersects[0].object.name == cube.name) {
                                     poly.line.material.color = new THREE.Color("silver");
                                     singleWall = poly;//return false;
                                     selectPolyCube = cube;
-                                    $.each(poly.cubes , function(j , cube){
+                                    $.each(poly.cubes, function (j, cube) {
                                         cube.material.color = new THREE.Color("silver");
                                     });
 
@@ -1353,15 +1174,15 @@ function selectWallFunc () {
                 }
             }
 
-            if(typeof singleWall !== "undefined" ){
+            if (typeof singleWall !== "undefined") {
                 singleSelectWall = singleWall;
-            }else{
-                singleSelectWall= undefined;
+            } else {
+                singleSelectWall = undefined;
 
-                $.each(polys , function(i , poly){
+                $.each(polys, function (i, poly) {
                     poly.line.material.color = new THREE.Color("red");
-                    if(poly.cubes.length){
-                        $.each(poly.cubes , function(j , cube){
+                    if (poly.cubes.length) {
+                        $.each(poly.cubes, function (j, cube) {
                             polycube.push(cube);
                             cube.material.color = new THREE.Color("red");
                         });
@@ -1371,7 +1192,7 @@ function selectWallFunc () {
             }
         }
 
-    }catch(e){
+    } catch (e) {
         console.log(e);
 
     }

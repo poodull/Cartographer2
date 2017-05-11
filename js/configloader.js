@@ -465,8 +465,6 @@ function Floors() {
                 targetOffset.y = controls.target.y - lastFloor.mesh.position.y;
                 targetOffset.z = controls.target.z - lastFloor.mesh.position.z;
 
-                //if (typeof initGrid != "undefined") { clearGrid(); }
-
                 // Fade previous floor.
                 TweenLite.to(lastFloor.mesh.material, 1,
                     {
