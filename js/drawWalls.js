@@ -512,15 +512,15 @@ function wallInfoCalc(firstPoint, endPoint, wallPointId) {
         wallname = "_temp";
     }
 
-    if (showWallInf) {
-        if (typeof _drawMode.selectedObject !== "undefined") {
-            showWallInfo(endPoint, wallname, dist);
-        } else {
-            setTimeout(function () {
-                showWallInfo(endPoint, wallname, dist);
-            }, 1000);
+    if(showWallInf){
+        showWallInfo(endPoint , wallname ,dist);
+        /*if (typeof _drawMode.selectedObject  !== "undefined"){
+        }else{
+            setTimeout(function(){
+                showWallInfo(endPoint , wallname ,dist);
+            } , 1000);
         }
-
+        */
     }
 }
 
@@ -822,13 +822,47 @@ function onDocumentMouseMoveDraw(event) {
             _tempScaleLine = new THREE.Line(geometry, material);
             _tempScaleLine.name = "tempScaleLine";
             scene.add(_tempScaleLine);
+        }else{
+
+            var polys  = _floors.floorData[0].gridData.polys;
+            var polycube = [] ,  polyline = [];
+            $.each(polys , function(i , poly){
+                polyline.push( poly.line );
+            });
+
+            if(polyline.length){
+                var intersects = raycaster.intersectObjects(polyline, true);
+            }
+
+            if (intersects.length > 0) {
+                var obj = intersects[0].object;
+                $.each(polys , function(i , poly){
+                    if(obj == poly.line){
+                        var firstPoint  , endPoint;
+                        $.each(poly.cubes , function(i , cube){
+                            endPoint = cube.position;
+                            if(typeof firstPoint !== "undefined"){
+                                showWallInf=true;
+                                wallInfoCalc( firstPoint , endPoint , "show" );
+
+
+                            }
+                            firstPoint = endPoint;
+                        });
+                    }
+                });
+            }else{
+                $("div[id^=showWallPos_]").remove();
+            }
         }
     }
 }
 
 function onDocumentMouseUpDraw(event) {
     event.preventDefault();
-
+    if(showWallInf){
+        $("div[id^=showWallPos_]").remove();
+    }
     _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
     _drawMode.mouseY = -((event.clientY - container.offsetTop) / renderer.domElement.clientHeight) * 2 + 1;
 
