@@ -481,7 +481,34 @@ function showSelectedPoly() {
 }
 
 
-function checkBound(point, tpLeft, btRight) {
+function checkWithinLine(point , firstpoint , secondPoint){
+
+    var  tpLeft ,btRight,z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
+    if (firstpoint.position.x > secondPoint.position.x
+        && firstpoint.position.y > secondPoint.position.y ) {
+        tpLeft =secondPoint.position;
+        btRight =firstpoint.position;
+    } else if(firstpoint.position.x < secondPoint.position.x
+        && firstpoint.position.y < secondPoint.position.y ) {
+        tpLeft =firstpoint.position;
+        btRight =secondPoint.position;
+    } else if(firstpoint.position.x > secondPoint.position.x
+        && firstpoint.position.y < secondPoint.position.y ) {
+
+        tpLeft = snapXYZ(secondPoint.position.x, firstpoint.position.y, z, _cubeSize);
+        btRight = snapXYZ(firstpoint.position.x, secondPoint.position.y, z, _cubeSize);
+    } else if (firstpoint.position.x < secondPoint.position.x
+        && firstpoint.position.y > secondPoint.position.y ) {
+
+        tpLeft = snapXYZ(firstpoint.position.x, secondPoint.position.y, z, _cubeSize);
+        btRight = snapXYZ(secondPoint.position.x, firstpoint.position.y, z, _cubeSize);
+    }
+
+    return checkBound (point , tpLeft , btRight);
+
+}
+
+function checkBound (point, tpLeft , btRight) {
     if (tpLeft.x <= point.x && point.x <= btRight.x && tpLeft.y <= point.y && point.y <= btRight.y) {
         return true;
     }
@@ -917,15 +944,20 @@ function onDocumentMouseMoveDraw(event) {
                 $.each(polys , function(i , poly){
                     if(obj == poly.line){
                         var firstPoint  , endPoint;
-                        $.each(poly.cubes , function(i , cube){
-                            endPoint = cube.position;
-                            if(typeof firstPoint !== "undefined"){
-                                showWallInf=true;
-                                wallInfoCalc( firstPoint , endPoint , "show" );
+                        $.each(poly.cubes , function(j , cube){
 
-
+                                console.log(j , intersects[0].point , poly.cubes[j].position , poly.cubes[j+1].position);
+                            var withinLine = checkWithinLine(intersects[0].point , poly.cubes[j] , poly.cubes[j+1]);
+                            if(withinLine){
+                                firstPoint = poly.cubes[j].position;
+                                endPoint = poly.cubes[j+1].position;
+                                if(typeof firstPoint !== "undefined"){
+                                    showWallInf=true;
+                                    wallInfoCalc( firstPoint , endPoint , "show" );
+                                    return false;
+                                }
                             }
-                            firstPoint = endPoint;
+
                         });
                     }
                 });
