@@ -186,7 +186,10 @@ function onDocumentMouseDownDraw(event) {
 
                 if(_tempCubes.length > 1){
                     var contPoly = commitPoly();
-                    addUndoLine( "createContPoly" , $.extend(true, {} , contPoly) );
+                    if(_tempCubes.length  == 2){
+                        addUndoLine( "startContPoly" , $.extend( true, {} , contPoly) );
+                    }
+                    addUndoLine( "createContPoly" , $.extend( true, {} , contPoly) );
                 }
                 redrawLine();
                 break;
@@ -211,6 +214,9 @@ function onDocumentMouseDownDraw(event) {
                     mouseDownDraw = !0;
                     removeSelectWallBox();
                     selectDrawBox = false;
+                    if(singleSelectWall.cubes.length > 0 ){
+                        addUndoLine( "editPoly" , $.extend( true, {} , singleSelectWall) );
+                    }
 
                     return false;
                 }
@@ -275,15 +281,32 @@ function callUndo(){
     var lastUndo = _undo.pop();
     var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     var matchPoly;
+    if(typeof lastUndo !== "undefined" && lastUndo.type == "editPoly"){
+        $.each(polys , function(i , poly){
+                if(poly.polyId ==  lastUndo.polys.polyId ){
+                    matchPoly =  poly;
+                    matchPolyIndex = polys.indexOf(poly);
+                }
+            });
 
+            if(typeof matchPoly !== "undefined"){
+                callPolyUndo(lastUndo.polys);
+            }
 
-    if(typeof lastUndo !== "undefined" && lastUndo.type == "createContPoly"){
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "startContPoly"){
+        $.each(polys , function(i , poly){
+            if(poly.polyId ==  lastUndo.polys.polyId ){
+                scene.remove(poly.line);
+                $.each(poly.cubes , function(i , cube){
+                    scene.remove(cube);
+                });
+            }
+        });
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "createContPoly"){
         if(typeof lastUndo.polys !== "undefined"){
             //var index = polys.indexOf(lastUndo.polys);
             $.each(polys , function(i , poly){
-                removePolyUndo([polys[index]]);
                 if(poly.polyId ==  lastUndo.polys.polyId ){
-                    createPolyUndo([lastUndo.polys]);
                     matchPoly =  poly;
                     matchPolyIndex = polys.indexOf(poly);
                     if( poly.cubes.length ==  lastUndo.polys.cubes.length ){
@@ -301,7 +324,7 @@ function callUndo(){
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "createSinglePoly"){
         if(typeof lastUndo.polys !== "undefined"){
             var index = polys.indexOf(lastUndo.polys);
-            if(index){
+            if(index >= 0){
                 removePolyUndo([polys[index]]);
             }
         }
@@ -321,9 +344,22 @@ function callPolyUndo(lastpoly){
                 });
             }
         });
+        //debugger;
+        console.log(lastpoly.cubes.length);
+        if(lastpoly.cubes.length < 2){
 
-        createPolyUndo([lastpoly]);
-
+        }else{
+            createPolyUndo([lastpoly]);
+        }
+        //debugger;
+        /*
+        if(lastpoly.cubes.length > 0){
+            $.each(lastpoly.cubes , function(i , cube){
+                _tempCubes.push(cube);
+                scene.add(cube);
+            });
+        }
+        */
     }
 }
 
@@ -336,10 +372,20 @@ function createPolyUndo(lastUndoPolys){
                 scene.add(cube);
             });
 
+            var tmpDrawMode = _drawMode.mode;
+            _drawMode.mode=undefined;
             _drawMode.selectedObject = undefined;
             redrawLine();
+
+            _drawMode.mode= ControlModes.DrawContinuePoly;
             commitPoly();
-            _tempLine = undefined; _tempCubes = [];
+            _drawMode.mode=tmpDrawMode;
+
+            // if(typeof matchPolyIndex !== "undefined"){
+            //     commitPoly(matchPolyIndex)
+            // }else{
+            // }
+            _tempLine = undefined, _tempCubes = [];
         });
     }
 }
