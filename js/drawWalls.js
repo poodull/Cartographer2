@@ -215,7 +215,7 @@ function onDocumentMouseDownDraw(event) {
                     removeSelectWallBox();
                     selectDrawBox = false;
                     if(singleSelectWall.cubes.length > 0 ){
-                        addUndoLine( "editPoly" , $.extend( true, {} , singleSelectWall) );
+                        addUndoEditPoly(singleSelectWall);
                     }
 
                     return false;
@@ -269,6 +269,27 @@ function onDocumentMouseDownDraw(event) {
     }
 }
 
+
+function addUndoEditPoly(singleSelectWall){
+    var newObj = {};
+    $.each(singleSelectWall , function(name , val){
+        if(typeof val == "object" && "cubes" == name ){
+            if(val.length){
+                newObj[name]=[];
+                $.each(val , function( i ,v){
+                    if("function" == typeof v.clone){
+                        var cube = v.clone();
+                        newObj[name].push(cube);
+                    }
+                });
+            }
+        }else{
+            newObj[name]=val;
+        }
+    });
+    addUndoLine( "editPoly" , newObj );
+}
+
 function hidPolyInfo(){
     $("div[id^=showWallPos_]").remove();
 }
@@ -290,7 +311,7 @@ function callUndo(){
             });
 
             if(typeof matchPoly !== "undefined"){
-                callPolyUndo(lastUndo.polys);
+                callPolyUndo(lastUndo.polys , lastUndo.type);
             }
 
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "startContPoly"){
@@ -316,7 +337,7 @@ function callUndo(){
                     }
                 });
             if(typeof matchPoly !== "undefined"){
-                callPolyUndo(lastUndo.polys);
+                callPolyUndo(lastUndo.polys , lastUndo.type);
                 //removePolyUndo([matchPoly]);
                 //createPolyUndo([lastUndo.polys]);
             }
@@ -333,7 +354,7 @@ function callUndo(){
     }
 }
 
-function callPolyUndo(lastpoly){
+function callPolyUndo(lastpoly ,lastUndotype){
     if(lastpoly.polyId){
         var remPolys=[] , polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
         $.each(polys , function( i , poly){
@@ -346,7 +367,7 @@ function callPolyUndo(lastpoly){
         });
         //debugger;
         console.log(lastpoly.cubes.length);
-        if(lastpoly.cubes.length < 2){
+        if(lastpoly.cubes.length < 2 && lastUndotype == "createContPoly"){
 
         }else{
             createPolyUndo([lastpoly]);
@@ -378,13 +399,13 @@ function createPolyUndo(lastUndoPolys){
             redrawLine();
 
             _drawMode.mode= ControlModes.DrawContinuePoly;
-            commitPoly();
+            if(typeof matchPolyIndex !== "undefined"){
+                commitPoly(matchPolyIndex)
+            }else{
+                commitPoly();
+            }
             _drawMode.mode=tmpDrawMode;
 
-            // if(typeof matchPolyIndex !== "undefined"){
-            //     commitPoly(matchPolyIndex)
-            // }else{
-            // }
             _tempLine = undefined, _tempCubes = [];
         });
     }
