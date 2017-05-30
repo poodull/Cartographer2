@@ -98,8 +98,13 @@ function removeWall(floor) {
 function cutSelectedWall(topoly, cutPoint) {
     var polys = _floors.floorData[0].gridData.polys;
     var toCutWall;
-    $.each(polys, function (i, poly) {
-        if (topoly.name === poly.line.name) {
+    var cutVoxel =createVoxelAt( cutPoint , "red");
+
+
+    $.each(polys , function ( i , poly){
+        if(topoly.name === poly.line.name ){
+            poly.cutPoint = cutVoxel;
+            addUndoLine("cutPoly" , poly );
             toCutWall = poly;
             scene.remove(poly.line);
 
@@ -121,17 +126,15 @@ function cutSelectedWall(topoly, cutPoint) {
                 var diff = (cutPoint.x - cube.position.x) * (cutPoint.y - nextpoint.position.y) - (cutPoint.x - nextpoint.position.x) * (cutPoint.y - cube.position.y);
                 if (diff < 3 && diff > -3) {
                     //console.log(cutPoint , cube , nextpoint);
-                    var voxel = createVoxelAt(cutPoint, "red");
-                    scene.add(voxel);
-                    _tempCubes.push(voxel);
+                    scene.add(cutVoxel);
+                    _tempCubes.push(cutVoxel);
                     _drawMode.selectedObject = undefined;
                     redrawLine();
                     commitPoly();
                     _tempCubes = [];
 
-                    var voxel = createVoxelAt(cutPoint, "red");
-                    scene.add(voxel);
-                    _tempCubes.push(voxel);
+                    scene.add(cutVoxel);
+                    _tempCubes.push(cutVoxel);
                 }
                 //if(cube.position.x < cutPoint.x &&  nextpoint.x && ){}
             })
@@ -215,7 +218,11 @@ function onDocumentMouseDownDraw(event) {
                     removeSelectWallBox();
                     selectDrawBox = false;
                     if(singleSelectWall.cubes.length > 0 ){
-                        addUndoEditPoly(singleSelectWall);
+                        if(typeof selectedPolys !== "undefined" && selectedPolys.length > 1){
+                            addUndoEditPoly(selectedPolys);
+                        }else{
+                            addUndoEditPoly([singleSelectWall]);
+                        }
                     }
 
                     return false;
@@ -270,24 +277,31 @@ function onDocumentMouseDownDraw(event) {
 }
 
 
-function addUndoEditPoly(singleSelectWall){
-    var newObj = {};
-    $.each(singleSelectWall , function(name , val){
-        if(typeof val == "object" && "cubes" == name ){
-            if(val.length){
-                newObj[name]=[];
-                $.each(val , function( i ,v){
-                    if("function" == typeof v.clone){
-                        var cube = v.clone();
-                        newObj[name].push(cube);
+function addUndoEditPoly(selectWall){
+    var newObj = [];
+    if(selectWall.length){
+        $.each(selectWall , function(j , singleSelectWall){
+            newObj[j]={};
+            $.each(singleSelectWall , function(name , val){
+                if(typeof val == "object" && "cubes" == name ){
+                    if(val.length){
+                        newObj[j][name]=[];
+                        $.each(val , function( i ,v){
+                            if("function" == typeof v.clone){
+                                var cube = v.clone();
+                                newObj[j][name].push(cube);
+                            }
+                        });
                     }
-                });
-            }
-        }else{
-            newObj[name]=val;
-        }
-    });
-    addUndoLine( "editPoly" , newObj );
+                }else{
+                    newObj[j][name]=val;
+                }
+            });
+        });
+
+        addUndoLine( "editPoly" , newObj );
+
+    }
 }
 
 function hidPolyInfo(){
@@ -302,17 +316,54 @@ function callUndo(){
     var lastUndo = _undo.pop();
     var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     var matchPoly;
-    if(typeof lastUndo !== "undefined" && lastUndo.type == "editPoly"){
+    if(typeof lastUndo !== "undefined" && lastUndo.type == "addOrigin"){
+        callUndoOriginFunc(lastUndo.intersects);
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "addScale"){
+        callUndoScale(lastUndo.scale);
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "cutPoly"){
+        var rmindex=[];
         $.each(polys , function(i , poly){
-                if(poly.polyId ==  lastUndo.polys.polyId ){
-                    matchPoly =  poly;
-                    matchPolyIndex = polys.indexOf(poly);
+            $.each(poly.cubes , function(j , cube){
+                if(lastUndo.polys.cutPoint.position === cube.position){
+                    $.each(poly.cubes , function(k , rcube){
+                        scene.remove(rcube);
+                    });
+                    scene.remove(poly.line);
+                    var index = polys.indexOf(poly);
+                    rmindex.push(index);
+                    //polys.splice(index , 1);
+                    return false;
+                }
+            });
+        });
+
+        rmindex.reverse()
+        $.each(rmindex , function( i ,index){
+            if(typeof polys[index] !== "undefined" ){
+                polys.splice(index , 1);
+            }
+        })
+
+        createPolyUndo([lastUndo.polys]);
+        //debugger;
+
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "editPoly"){
+
+        if(lastUndo.polys.length > 0){
+            $.each(lastUndo.polys , function(k , lastundoPoly ){
+                $.each(polys , function(i , poly){
+                    if(poly.polyId ==  lastundoPoly.polyId ){
+                        matchPoly =  poly;
+                        matchPolyIndex = polys.indexOf(poly);
+                    }
+                });
+
+                if(typeof matchPoly !== "undefined"){
+                    callPolyUndo(lastundoPoly , lastUndo.type);
                 }
             });
 
-            if(typeof matchPoly !== "undefined"){
-                callPolyUndo(lastUndo.polys , lastUndo.type);
-            }
+        }
 
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "startContPoly"){
         $.each(polys , function(i , poly){
@@ -779,7 +830,10 @@ function commitPoly() {
     if (typeof continueLinePoly == "undefined") {
         if (typeof arguments[0] == "undefined") {
             _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
-        } else {
+
+
+        }else if(typeof _floors.floorData[_floors.selectedFloorIndex].gridData.polys[arguments[0]] !== "undefined"){
+            poly.polyId = _floors.floorData[_floors.selectedFloorIndex].gridData.polys[arguments[0]].polyId;
             _floors.floorData[_floors.selectedFloorIndex].gridData.polys[arguments[0]] = poly;
         }
 
@@ -910,7 +964,8 @@ function onDocumentMouseMoveDraw(event) {
                     scene.add(newCube);
 
                     //remove old voxel;
-                    scene.remove(cube);
+                    // scene.remove(cube);
+                    removePoint(cube);
                 });
                 scene.remove(singleSelectWall.line);
                 redrawLine();
