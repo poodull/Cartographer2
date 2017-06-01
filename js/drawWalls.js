@@ -142,7 +142,7 @@ function cutSelectedWall(topoly, cutPoint) {
     });
 }
 
-var drawModeRun = false, mouseDownDraw = !1, panMove;
+var drawModeRun = false, mouseDownDraw = !1, panMove, selectedDevice;
 function onDocumentMouseDownDraw(event) {
     if (event.button == 0) {
         event.preventDefault();
@@ -248,6 +248,8 @@ function onDocumentMouseDownDraw(event) {
                 if (intersects[0].object.name.startsWith("device_")) {
                     //console.log(intersects[0].object);
                     _selectedDragDevice = intersects[0].object;
+                    var obj = {'device' : $.extend( true, {} , intersects[0].object) , 'position':$.extend( true, {} , intersects[0].object.position) }
+                    addUndoDevice('moveDevice' , obj);
 
                 }
                 break;
@@ -316,7 +318,13 @@ function callUndo(){
     var lastUndo = _undo.pop();
     var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     var matchPoly;
-    if(typeof lastUndo !== "undefined" && lastUndo.type == "addOrigin"){
+
+    if(typeof lastUndo !== "undefined" && ( (lastUndo.type == "addImgLoad")  )  ){
+        callUndoImgLoad(lastUndo);
+    }else if(typeof lastUndo !== "undefined" && ( (lastUndo.type == "addDevice") || (lastUndo.type == "deleteDevice" ) || (lastUndo.type == "moveDevice" ) )  ){
+        callUndoDevices(lastUndo);
+
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "addOrigin"){
         callUndoOriginFunc(lastUndo.intersects);
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "addScale"){
         callUndoScale(lastUndo.scale);
@@ -902,7 +910,13 @@ function onDocumentMouseMoveDraw(event) {
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
     var intersects = raycaster.intersectObject(plane, true);
     if (intersects.length > 0) {
-        if (ControlModes.PanSelect === _drawMode.mode && typeof panMove !== "undefined" && mouseDownDraw) {
+        if( ControlModes.MoveDevice  === _drawMode.mode && typeof selectedDevice !== "undefined" && mouseDownDraw ){
+            var touchpoint = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
+
+            selectedDevice.position.set(touchpoint.x , touchpoint.y, touchpoint.z );
+            selectedDevice.deviceOutline.copy(selectedDevice);
+            //console.log(touchpoint);
+        }else if( ControlModes.PanSelect  === _drawMode.mode && typeof panMove !== "undefined" && mouseDownDraw ){
             var touchpoint = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             // console.log(touchpoint)
             var xdiff = touchpoint.x - panMove.point.x;
@@ -1133,8 +1147,11 @@ function onDocumentMouseUpDraw(event) {
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
     var intersects = raycaster.intersectObject(plane, true);
 
-    if (_drawMode.mode == ControlModes.SetScale) {
-        if (_tempScaleCube.length && typeof _tempScaleLine !== "undefined") {
+    if(typeof selectedDevice !=="undefined" ){
+        selectedDevice=undefined;
+
+    }else if (_drawMode.mode == ControlModes.SetScale) {
+        if (_tempScaleCube.length > 1 && typeof _tempScaleLine !== "undefined") {
             var distanceX = Math.abs(_tempScaleCube[0].position.x - _tempScaleCube[1].position.x);
             var distanceY = Math.abs(_tempScaleCube[0].position.y - _tempScaleCube[1].position.y);
             var distancePx = Math.sqrt(distanceX * distanceX + distanceY * distanceY);

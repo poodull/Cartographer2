@@ -15,6 +15,28 @@ function imageToB64(url, callback) {
     xhr.send();
 }
 
+function addUndoImgLoad(typ , imgsrc ){
+    _undo.push({'type' : typ , 'imgsrc' : imgsrc});
+}
+
+function callUndoImgLoad(lastundo){
+    if(lastundo.type == "addImgLoad" ){
+        if(lastundo.imgsrc == ""){
+            _floors.floorData[0].mesh.material.map.image.currentSrc
+        }else{
+
+        }
+    }
+}
+
+
+// if( typeof _floors.floorData[0] !== "undefined"  && typeof _floors.floorData[0].mesh !== "undefined" && typeof _floors.floorData[0].mesh.material.map.image.currentSrc !== "undefined"){
+//     addUndoImgLoad("addImgLoad" , _floors.floorData[0].mesh.material.map.image.currentSrc );
+// }else{
+//     addUndoImgLoad("addImgLoad" , '' );
+// }
+
+
 function loadImage(image, altitude) {
 
     var domURL = window.URL || window.webkitURL || window;

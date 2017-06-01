@@ -40,6 +40,7 @@ function addDevice (x, y) {
                         _devices.visibleDevices.push(device.mesh);
                         $('#addDeviceMenu').dialog("close");
                         container.style.cursor = "default";
+                        addUndoDevice('addDevice' , device.mesh);
                         refreshDevices();
                         saveConfig(true);
                     }
@@ -51,6 +52,34 @@ function addDevice (x, y) {
             }
         }
     });
+}
+
+function addUndoDevice(typ , device ){
+    _undo.push({'type' : typ , 'device' : device});
+}
+
+function callUndoDevices(lastundo){
+    if(lastundo.type === "moveDevice" && typeof lastundo.device == "object" ){
+        lastundo.device.device.position.set(lastundo.device.position.x , lastundo.device.position.y ,lastundo.device.position.z  );
+        lastundo.device.device.deviceOutline.position.set(lastundo.device.position.x , lastundo.device.position.y ,lastundo.device.position.z  );
+    }else if(lastundo.type === "addDevice" && typeof lastundo.device == "object" ){
+        var index = _devices.meshList.indexOf(lastundo.device);
+        _devices.meshList.splice(index ,1);
+        _devices.deviceList.splice(index ,1);
+
+        scene.remove(lastundo.device.edges);
+        scene.remove(lastundo.device);
+        refreshDevices();
+    }else if(lastundo.type === "deleteDevice" && typeof lastundo.device == "object" ){
+        var device = lastundo.device;
+        scene.add(device.mesh);
+        scene.add(device.mesh.edges);
+        scene.add(device.mesh.deviceOutline);
+        _devices.deviceList.push(device);
+        _devices.meshList.push(device.mesh);
+        refreshDevices();
+    }
+    saveConfig(true);
 }
 
 function Devices() {
@@ -175,10 +204,13 @@ function refreshDevices () {
                         deleteDevice.onclick = function () {
                             _devices.deviceList.forEach(function (item, index) {
                                 if (item.id === device.id) {
+                                    addUndoDevice('deleteDevice' , device);
+
                                     scene.remove(device.mesh);
                                     scene.remove(device.mesh.edges);
                                     scene.remove(device.mesh.deviceOutline);
                                     _devices.deviceList.splice(index, 1);
+                                    _devices.meshList.splice(index, 1);
                                 }
                             });
                             saveConfig (true);
