@@ -550,6 +550,14 @@ function Floors() {
     onSelectedFloorChanged.initCustomEvent("onSelectedFloorChanged", false, false, { "index": this._selectedFloorIndex });
 
     this.clear = function () {
+        if(typeof _devices !== "undefined" && typeof _devices.meshList !== "undefined"){
+            $.each(_devices.meshList , function(i , device){
+                scene.remove(device);
+                scene.remove(device.deviceOutline);
+                scene.remove(device.edges);
+            });
+        }
+
         this.floorData.forEach(function (floor) {
             removeWall(floor);
             scene.remove(floor.mesh);

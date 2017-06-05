@@ -21,11 +21,8 @@ function addUndoImgLoad(typ , imgsrc ){
 
 function callUndoImgLoad(lastundo){
     if(lastundo.type == "addImgLoad" ){
-        if(lastundo.imgsrc == ""){
-            _floors.floorData[0].mesh.material.map.image.currentSrc
-        }else{
+        loadImage(_defaultFloor.imageURL);
 
-        }
     }
 }
 
@@ -47,7 +44,9 @@ function loadImage(image, altitude) {
 
         var imageWidth = img.naturalWidth, imageHeight = img.naturalHeight;
         var loader = new THREE.TextureLoader();
+        addUndoImgLoad("addImgLoad" , '' );
 
+        _floors.clear();
         loader.load(url, function (floorTexture) {
             // Delete the default floor if still present in this config. This is done here so that index 0 is free for the first user-defined floor.
             if (_floors.floorData.length === 1 && _floors.floorData[0].isDefault) {
