@@ -146,7 +146,6 @@ var drawModeRun = false, mouseDownDraw = !1, panMove, selectedDevice;
 function onDocumentMouseDownDraw(event) {
     if (event.button == 0) {
         event.preventDefault();
-
         lastMouseClick = getTouchPoint(event.clientX, event.clientY);
         _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
         _drawMode.mouseY = -((event.clientY - container.offsetTop) / renderer.domElement.clientHeight) * 2 + 1;
@@ -377,16 +376,20 @@ function callUndo(){
 
         }
 
-    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "startContPoly"){
-        $.each(polys , function(i , poly){
-            if(poly.polyId ==  lastUndo.polys.polyId ){
+    } else if(typeof lastUndo !== "undefined" && lastUndo.type == "startContPoly") {
+        $.each(polys, function(i , poly){
+            if(poly.polyId ==  lastUndo.polys.polyId ) {
+                matchPolyIndex = polys.indexOf(poly);
                 scene.remove(poly.line);
-                $.each(poly.cubes , function(i , cube){
+                $.each(poly.cubes, function(i , cube) {
                     scene.remove(cube);
                 });
             }
         });
-    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "createContPoly"){
+        polys.splice(matchPolyIndex  ,1);
+        saveConfig(true);
+
+    } else if(typeof lastUndo !== "undefined" && lastUndo.type == "createContPoly") {
         if(typeof lastUndo.polys !== "undefined"){
             //var index = polys.indexOf(lastUndo.polys);
             $.each(polys , function(i , poly){
@@ -430,20 +433,11 @@ function callPolyUndo(lastpoly ,lastUndotype){
         });
         //debugger;
         console.log(lastpoly.cubes.length);
-        if(lastpoly.cubes.length < 2 && lastUndotype == "createContPoly"){
-
-        }else{
+        if (lastpoly.cubes.length < 2 && lastUndotype == "createContPoly") {
+            polys.splice(matchPolyIndex , 1);
+        } else {
             createPolyUndo([lastpoly]);
         }
-        //debugger;
-        /*
-        if(lastpoly.cubes.length > 0){
-            $.each(lastpoly.cubes , function(i , cube){
-                _tempCubes.push(cube);
-                scene.add(cube);
-            });
-        }
-        */
     }
 }
 
@@ -512,7 +506,6 @@ function removeSelectedPoly () {
         });
 
         saveConfig(true);
-
         return false;
     }
     /* single select wall remove */

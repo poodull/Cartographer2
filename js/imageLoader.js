@@ -37,7 +37,10 @@ function callUndoImgLoad(lastundo){
 function loadImage(image, altitude) {
 
     var domURL = window.URL || window.webkitURL || window;
-    var url = domURL.createObjectURL(image);
+    var url = image;
+    if(typeof image == "object"){
+        var url = domURL.createObjectURL(image);
+    }
     var img = new Image();
     img.src = url;
     img.onload = function () {

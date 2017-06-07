@@ -113,6 +113,7 @@ function onDocumentKeyDown (e) {
             } else {
                 removeMode();
             }
+            hidPolyInfo();
             break;
     }
 }
