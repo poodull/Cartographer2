@@ -1136,6 +1136,12 @@ function onDocumentMouseMoveDraw(event) {
     }
 }
 
+function removePoint(_tempcube){
+    $("#showWallPos_"+_tempcube.id).remove();
+    scene.remove(_tempcube);
+
+}
+
 function onDocumentMouseUpDraw(event) {
     event.preventDefault();
     if(showWallInf){
@@ -1166,14 +1172,16 @@ function onDocumentMouseUpDraw(event) {
             _tempScaleCube = [];
             _tempScaleLine = undefined;
 
-            //jquery dialoge not working
-            // var dialog = $('#frmScale');
-            // dialog.data('distancePx', distancePx);
-            // dialog.dialog("open");
-
-            var distance = prompt("Distance in meters : ", "");
-            if (distance != null) {
-                setNewScale(distance, distancePx);
+            if ($('.scaleMeters')[0].checked === true) {
+                var distanceM = prompt("Distance in meters : ", "");
+                if (distanceM != null) {
+                    setNewScale(distanceM, distancePx);
+                }
+            } else {
+                var distanceF = prompt("Distance in feet : ", "");
+                if (distanceF != null) {
+                    setNewScale(distanceF * 0.3048 , distancePx);
+                }
             }
         }
     } else if (tmpLineArr.length > 0) {
