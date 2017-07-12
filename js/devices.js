@@ -2,9 +2,11 @@
  * Created by Vamsi on 3/6/2017.
  */
 
+/*
+    function to add devices and to show the dialog box on click of add
+ */
 var _devices = new Devices();
-
-function addDevice (x, y) {
+function addDevice(x, y) {
     var dialog = $('#addDeviceMenu').dialog({
         autoOpen: false,
         resizeable: false,
@@ -16,7 +18,7 @@ function addDevice (x, y) {
                 //set up a new device object based on field inputs
                 var device = {
                     id: $("#txtDeviceID").val(),
-                    name: $("#txtDeviceName").val().substr(0,15),
+                    name: $("#txtDeviceName").val().substr(0, 15),
                     model: $("#deviceModel").val(),
                     deviceType: $("#deviceType").val()
                 };
@@ -40,7 +42,7 @@ function addDevice (x, y) {
                         _devices.visibleDevices.push(device.mesh);
                         $('#addDeviceMenu').dialog("close");
                         container.style.cursor = "default";
-                        addUndoDevice('addDevice' , device.mesh);
+                        addUndoDevice('addDevice', device.mesh);
                         refreshDevices();
                         saveConfig(true);
                     }
@@ -54,23 +56,25 @@ function addDevice (x, y) {
     });
 }
 
-function addUndoDevice(typ , device ){
-    _undo.push({'type' : typ , 'device' : device});
+function addUndoDevice(typ, device) {
+    _undo.push({'type': typ, 'device': device});
 }
 
-function callUndoDevices(lastundo){
-    if(lastundo.type === "moveDevice" && typeof lastundo.device == "object" ){
-        lastundo.device.device.position.set(lastundo.device.position.x , lastundo.device.position.y ,lastundo.device.position.z  );
-        lastundo.device.device.deviceOutline.position.set(lastundo.device.position.x , lastundo.device.position.y ,lastundo.device.position.z  );
-    }else if(lastundo.type === "addDevice" && typeof lastundo.device == "object" ){
+/*
+    function to undo add and move devices
+ */
+function callUndoDevices(lastundo) {
+    if (lastundo.type === "moveDevice" && typeof lastundo.device == "object") {
+        lastundo.device.device.position.set(lastundo.device.position.x, lastundo.device.position.y, lastundo.device.position.z);
+        lastundo.device.device.deviceOutline.position.set(lastundo.device.position.x, lastundo.device.position.y, lastundo.device.position.z);
+    } else if (lastundo.type === "addDevice" && typeof lastundo.device == "object") {
         var index = _devices.meshList.indexOf(lastundo.device);
-        _devices.meshList.splice(index ,1);
-        _devices.deviceList.splice(index ,1);
-
+        _devices.meshList.splice(index, 1);
+        _devices.deviceList.splice(index, 1);
         scene.remove(lastundo.device.edges);
         scene.remove(lastundo.device);
         refreshDevices();
-    }else if(lastundo.type === "deleteDevice" && typeof lastundo.device == "object" ){
+    } else if (lastundo.type === "deleteDevice" && typeof lastundo.device == "object") {
         var device = lastundo.device;
         scene.add(device.mesh);
         scene.add(device.mesh.edges);
@@ -105,17 +109,22 @@ function Devices() {
     };
 }
 
-function deleteDevice () {
+function deleteDevice() {
     var deleteDevice = $("button#deleteDevice").siblings("#deleteDeviceSelect:checked");
     deleteDevice.siblings("#deleteDevice").trigger("click");
 }
 
-function selectDevice () {
+function selectDevice() {
     var selectDevice = $("#deleteDeviceSelect:checked");
     selectDevice.trigger("click");
 }
 
-function refreshDevices () {
+/*
+ function to refresh the layout everytime a change is made
+ Makes use of _devices and _floors to load the devices of a particular floor each time a change happens
+ */
+
+function refreshDevices() {
     var config, temp;
     var context = document.getElementById('deviceContent');
 
@@ -125,7 +134,7 @@ function refreshDevices () {
 
     if (config !== null) {
         //Create a new blob to hold the data
-        temp = (new Blob([config], { type: "text/plain;charset=utf-8" }));
+        temp = (new Blob([config], {type: "text/plain;charset=utf-8"}));
         var reader = new FileReader();  //set up the file reader
         reader.onloadend = function () {
             try {  //obtain the config through the file reader.
@@ -204,7 +213,7 @@ function refreshDevices () {
                         deleteDevice.onclick = function () {
                             _devices.deviceList.forEach(function (item, index) {
                                 if (item.id === device.id) {
-                                    addUndoDevice('deleteDevice' , device);
+                                    addUndoDevice('deleteDevice', device);
 
                                     scene.remove(device.mesh);
                                     scene.remove(device.mesh.edges);
@@ -213,7 +222,7 @@ function refreshDevices () {
                                     _devices.meshList.splice(index, 1);
                                 }
                             });
-                            saveConfig (true);
+                            saveConfig(true);
                         };
                         //Add more states/enums at the bottom of loader.js
                         //Change devType string based on device type
@@ -246,11 +255,6 @@ function refreshDevices () {
                         modelText.textContent = devModel;
                         nameText.textContent = devName;
 
-                        //Here I was using spans because you cant use overflow for table data elements
-                        //If we need to scroll horizontally through the table cells, this is how we do it.
-                        //We can set the overflow of the span inside the table cell.
-
-
                         //textContainer.appendChild(selectCell);
                         textContainer.appendChild(deleteDeviceSelect);
                         textContainer.appendChild(nameText);
@@ -261,7 +265,6 @@ function refreshDevices () {
 
                         //Bind this container to the device incase we need to use it later
                         device.textContainer = textContainer;
-                        // GUI.drawDevicePanel(device);
                         context.appendChild(textContainer);
 
                     }
@@ -272,21 +275,4 @@ function refreshDevices () {
             reader.readAsText(temp);
         }
     }
-}
-
-function editDevice () {
-    var dialog = $('#editDeviceMenu').dialog({
-        autoOpen: false,
-        resizeable: false,
-        height: 350,
-        width: 375,
-        modal: true,
-        buttons: {
-            "OK": function () {
-            },
-            Cancel: function () {
-                $('#editDeviceMenu').dialog("close");
-            }
-        }
-    });
 }

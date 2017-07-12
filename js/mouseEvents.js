@@ -1,6 +1,10 @@
 /**
  * Created by Vamsi on 3/3/2017.
  */
+
+/*
+function to add mouse down in add device mode
+ */
 function onMouseDown (e) {
     if (e.button == 0) {
         e.preventDefault();
@@ -13,10 +17,6 @@ function onMouseDown (e) {
                 var x = e.clientX - offset.left;
                 var y = e.clientY - offset.top;
                 addDevice(x, y);
-                break;
-            case ControlModes.EditDevice:
-                $("#editDeviceMenu").dialog('open');
-                editDevice();
                 break;
         }
     }
@@ -35,6 +35,10 @@ function updateZoom (isZoomOut, scale) {
     controls.dispatchEvent(endEvent);
 }
 
+/*
+function to show the location of a device on hover
+reads the geoloaction of the deivice from the floor and displays its coordinates
+ */
 function showLocation () {
     var intersects = raycaster.intersectObjects(_devices.visibleDevices, true);
     if (intersects.length > 0) {
@@ -56,6 +60,9 @@ function showLocation () {
     }
 }
 
+/*
+function to get the location of the device from the floor
+ */
 function getLocation (device) {
     if (device != null) {
         floor = _floors.floorData[_floors.selectedFloorIndex];
@@ -81,6 +88,9 @@ function getLocation (device) {
     }
 }
 
+/*
+function to remove the current mode after a complete action is done
+ */
 function removeMode () {
     $(".subMenu").children().removeClass('active');
     container.style.cursor = "default";
@@ -94,6 +104,10 @@ function removeMode () {
     selectedPolys = [];
 }
 
+/*
+function to call all keyboard events
+removemode is called for every complete action performed
+ */
 function onDocumentKeyDown (e) {
     var keyevent = window.event ? event : e;
     switch (keyevent.keyCode) {

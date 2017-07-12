@@ -3,6 +3,9 @@
  */
 var _floors = new Floors();
 
+/*
+ function to load the default floorimage, used in multiple places
+ */
 function loadDefaultFloor() {
     var domURL = window.URL || window.webkitURL || window;
 
@@ -38,6 +41,10 @@ function getMeta(floorData, domURL, callback) {
         callback(null, url, floorData, this.naturalWidth, this.naturalHeight)
     };
 }
+
+/*
+ function lo load the individual floor from floordata, this gets called from Floors()
+ */
 
 function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
 
@@ -111,6 +118,10 @@ function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
     });
 }
 
+/*
+ function to blob the image file
+ */
+
 function b64toBlob(b64Data, contentType, sliceSize) {
     contentType = contentType || 'data:image/png';
     sliceSize = sliceSize || 512;
@@ -140,8 +151,11 @@ function b64toBlob(b64Data, contentType, sliceSize) {
     return blob;
 }
 
+/*
+ function to load the config, if no proper config is found, loads the default floorimage
+ */
+
 function loadConfig(file, newFile) {
-    // TODO: clear any floor
     if (typeof _floors !== "undefined" && typeof _floors.floorData !== "undefined") {
         _floors.floorData.forEach(function (floor) {
             if (typeof floor.gridData !== "undefined") {
@@ -152,7 +166,7 @@ function loadConfig(file, newFile) {
 
     _floors.clear();
     _devices.clear();
-    var txIcons = [], db = [], config, democonfig = [];
+    var config, democonfig = [];
 
     var reader = new FileReader();
     reader.onloadend = function () {
@@ -184,7 +198,6 @@ function loadConfig(file, newFile) {
         }, function () {
             // Load devices.
             if (newFile || file == null) {
-                console.log(config);
             } else {
                 if ((typeof config.devices === "undefined" || !Array.isArray(config.devices) ) && 1 && config.floors[0]) {
                     config.devices = config.floors[0].devices;
@@ -217,31 +230,6 @@ function loadConfig(file, newFile) {
                     loadWalls(config.floors[0].walls);
                 }
             }
-
-
-            if (typeof config.txIcons !== "undefined") {
-                config.txIcons.forEach(function (txIcon) {
-                    var url = domURL.createObjectURL(b64toBlob(txIcon.image));
-                    var img = new Image();
-                    img.src = url;
-                    img.onload = function () {
-                        var loader = new THREE.TextureLoader();
-                        loader.load(url, function (texture) {
-                            txIcons[txIcon.id] = { texture: texture, b64: txIcon.image };
-                        });
-                    }
-                });
-            }
-
-            if (typeof config.db !== "undefined") {
-                config.db.forEach(function (dbEntry) {
-                    db[dbEntry.id] = { iconId: dbEntry.iconId };
-
-                    if (typeof dbEntry.name != "undefined") {
-                        db[dbEntry.id].name = dbEntry.name;
-                    }
-                });
-            }
         });
     };
 
@@ -252,18 +240,8 @@ function loadConfig(file, newFile) {
     }
 }
 
-function captureImage() {
-    var image = $('canvas');
-    image = image[0].toDataURL("image/png").replace("image/png", "image/octet-stream");
-    var a = document.createElement('a');
-    a.href = image;
-    a.download = "capture.png";
-    document.body.appendChild(a);
-    a.click();
-}
-
 function saveConfig(newConfigFlag) {
-    var floors = [], devices = [], txIcons = [], db = [];
+    var floors = [], devices = [];
 
     _floors.floorData.forEach(function (entry) {
         var floor = {
@@ -289,7 +267,7 @@ function saveConfig(newConfigFlag) {
                     poly.cubes.forEach(function (cube) {
                         points.push(cube.position);
                     });
-                    walls.push({ points: points, color: poly.color });
+                    walls.push({points: points, color: poly.color});
                 });
             }
             floor.walls = walls;
@@ -330,53 +308,11 @@ function saveConfig(newConfigFlag) {
         floors.devices = devices;
     }
 
-    var icons = [];
-    var dbEntries = [];
-    var keys = [];
-
-    for (var key in txIcons) {
-        if (txIcons.hasOwnProperty(key)) {
-            keys.push(key);
-        }
-    }
-
-    keys.forEach(function (key) {
-        var icon = {
-            id: key,
-            image: txIcons[key].b64
-        };
-
-        icons.push(icon);
-    });
-
-    keys.length = 0;
-
-    for (var key in db) {
-        if (db.hasOwnProperty(key)) {
-            keys.push(key);
-        }
-    }
-
-    keys.forEach(function (key) {
-        var dbEntry = {
-            id: key,
-            iconId: db[key].iconId
-        };
-
-        if (typeof db[key].name != "undefined") {
-            dbEntry.name = db[key].name;
-        }
-
-        dbEntries.push(dbEntry);
-    });
-
     var json = JSON.stringify({
         unit: "meters",
-        floors: floors,
-        txIcons: icons,
-        db: dbEntries
+        floors: floors
     }, null, '\t');
-    var blob = new Blob([json], { type: "text/plain;charset=utf-8" });
+    var blob = new Blob([json], {type: "text/plain;charset=utf-8"});
     if (!newConfigFlag) {
         saveAs(blob, "config.txt");
     }
@@ -386,6 +322,10 @@ function saveConfig(newConfigFlag) {
     refreshDevices();
 
 }
+
+/*
+ function to load and display the devices on to the floor
+ */
 
 function loadDevice(device, x, y, floorID) {
     if (typeof lastTouchPoint !== "function") {
@@ -428,13 +368,17 @@ function loadDevice(device, x, y, floorID) {
     _devices.deviceList.push(device);
     _devices.meshList.push(deviceMesh);
 
-    var outlineMaterial = new THREE.MeshPhongMaterial({ color: "yellow", side: THREE.BackSide });
+    var outlineMaterial = new THREE.MeshPhongMaterial({color: "yellow", side: THREE.BackSide});
     var deviceOutline = new THREE.Mesh(geometry, outlineMaterial);
 
     deviceOutline.position.copy(deviceMesh.position);
     deviceOutline.rotation.copy(deviceMesh.rotation);
     deviceMesh.deviceOutline = deviceOutline;
 }
+
+/*
+ function for load the floors from the config
+ */
 
 function Floors() {
     this.floorData = [];    //floor_id, name, building_name, scale, origin_x, origin_y, altitude, building_offset_x, building_offset_y, building_offset_z
@@ -527,7 +471,7 @@ function Floors() {
                 y: selectedFloor.mesh.position.y + targetOffset.y
             });
 
-            var altitude = { value: 0 };
+            var altitude = {value: 0};
             TweenLite.to(altitude, 1, {
                 value: selectedFloor.mesh.position.z, onUpdate: function () {
                     _targetZ = altitude.value;
@@ -547,11 +491,11 @@ function Floors() {
     };
     //var onSelectedFloorChanged = new CustomEvent("onSelectedFloorChanged", { "index": _selectedFloorIndex });
     var onSelectedFloorChanged = document.createEvent("CustomEvent");
-    onSelectedFloorChanged.initCustomEvent("onSelectedFloorChanged", false, false, { "index": this._selectedFloorIndex });
+    onSelectedFloorChanged.initCustomEvent("onSelectedFloorChanged", false, false, {"index": this._selectedFloorIndex});
 
     this.clear = function () {
-        if(typeof _devices !== "undefined" && typeof _devices.meshList !== "undefined"){
-            $.each(_devices.meshList , function(i , device){
+        if (typeof _devices !== "undefined" && typeof _devices.meshList !== "undefined") {
+            $.each(_devices.meshList, function (i, device) {
                 scene.remove(device);
                 scene.remove(device.deviceOutline);
                 scene.remove(device.edges);
@@ -575,11 +519,15 @@ function Floors() {
     };
 }
 
+/*
+ Initializing predefined constants
+ */
+
 var DeviceType =
-    {
-        RECEIVER: 5,
-        SENSOR: 8
-    };
+{
+    RECEIVER: 5,
+    SENSOR: 8
+};
 
 var DeviceState = {
     UNKNOWN: 2,

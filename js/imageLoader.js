@@ -1,6 +1,10 @@
 /**
  * Created by Vamsi on 3/1/2017.
  */
+
+/*
+    function to convert the floorimage to blob to load onto the canvas
+ */
 function imageToB64(url, callback) {
     var xhr = new XMLHttpRequest();
     xhr.onload = function () {
@@ -15,37 +19,32 @@ function imageToB64(url, callback) {
     xhr.send();
 }
 
-function addUndoImgLoad(typ , imgsrc ){
-    _undo.push({'type' : typ , 'imgsrc' : imgsrc});
+function addUndoImgLoad(typ, imgsrc) {
+    _undo.push({'type': typ, 'imgsrc': imgsrc});
 }
 
-var callUndoRunning =0;
-function callUndoImgLoad(lastundo){
-    if(lastundo.type == "addImgLoad" ){
-        callUndoRunning=1;
+var callUndoRunning = 0;
+function callUndoImgLoad(lastundo) {
+    if (lastundo.type == "addImgLoad") {
+        callUndoRunning = 1;
         loadImage(_defaultFloor.imageURL);
-        callUndoRunning=0;
+        callUndoRunning = 0;
     }
 }
 
-
-// if( typeof _floors.floorData[0] !== "undefined"  && typeof _floors.floorData[0].mesh !== "undefined" && typeof _floors.floorData[0].mesh.material.map.image.currentSrc !== "undefined"){
-//     addUndoImgLoad("addImgLoad" , _floors.floorData[0].mesh.material.map.image.currentSrc );
-// }else{
-//     addUndoImgLoad("addImgLoad" , '' );
-// }
-
-
+/*
+    Load the image on to the canvas, uses ImagetoB64 to get the image data
+ */
 function loadImage(image, altitude) {
 
     var domURL = window.URL || window.webkitURL || window;
     var url = image;
-    if(typeof image == "object"){
+    if (typeof image == "object") {
         var url = domURL.createObjectURL(image);
     }
     var img = new Image();
     img.src = url;
-    if(callUndoRunning !== 1){
+    if (callUndoRunning !== 1) {
         addUndoImgLoad("addImgLoad", '');
     }
     img.onload = function () {
@@ -57,7 +56,6 @@ function loadImage(image, altitude) {
         loader.load(url, function (floorTexture) {
             // Delete the default floor if still present in this config. This is done here so that index 0 is free for the first user-defined floor.
             if (_floors.floorData.length === 1 && _floors.floorData[0].isDefault) {
-                console.log("Deleting default floor.");
                 _floors.removeFloor(0);
             }
 

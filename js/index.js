@@ -25,7 +25,6 @@ $(document).ready(function () {
     setOffSetTooltip();
     bindListeners();
     addDevice();
-    editDevice();
     var config = null;
     if (typeof localStorage !== "undefined")
         config = localStorage.getItem("config");
@@ -38,6 +37,10 @@ $(document).ready(function () {
     animate();
 });
 
+/*
+    init function
+    initializes all the three js parameters
+ */
 function init() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(20, window.innerWidth/window.innerHeight, 0.1, 10000);
@@ -66,13 +69,9 @@ function init() {
     sceneVoxels.add(ambientLightVoxels);
     renderer.autoClear = false;
 
-
     setTimeout(function(){
         createPlane();
         bindDrawEvent();
-        //initDrawLine();
-        //createVoxelAt();
-        //redrawLine();
     } , 2000);
 }
 
@@ -85,6 +84,9 @@ function bindDrawEvent () {
 var _allCubes=[],_tempCubes=[], _cubeSize=5, _tempLine, _cursorVoxel, drawModeRun=false, _selectedDragDevice, lastMouseClick;
 var _currentPen  = 0, _isCubesVisible=true, polylength=0; //default color
 
+/*
+    function to show the sub toolbar icons based on the primary button click
+ */
 function showSubtoolBar() {
     $('a.myButton').click(function () {
         var classes = this.classList;
@@ -106,6 +108,9 @@ function showSubtoolBar() {
     });
 }
 
+/*
+    function to bind all the function to its events
+ */
 function bindListeners () {
 
     $('a.myButton.file').addClass('active');
@@ -129,9 +134,6 @@ function bindListeners () {
     $('#exportFile').click( function () {
         saveConfig();
     });
-    $('#captureFile').click( function () {
-        captureImage();
-    });
     $('#importFloorImage').click( function () {
         $('#loadFloorImage').trigger('click');
     });
@@ -141,6 +143,8 @@ function bindListeners () {
         $('.originSubMenu')[0].removeAttribute('hidden');
         $('.originSubMenu.thirdMenu').attr('style', 'display:inline');
         $('.originFloorImage-dialog')[0].removeAttribute('hidden');
+        container.style.cursor = "crosshair";
+        _drawMode.mode = ControlModes.SetOrigin;
     });
     $('#scaleFloorImage').click( function () {
         $('.toolbox-tools, .thirdMenu').attr('hidden', true);
@@ -148,6 +152,7 @@ function bindListeners () {
         $('.scaleSubMenu')[0].removeAttribute('hidden');
         $('.scaleSubMenu.thirdMenu').attr('style', 'display:inline');
         $('.scaleFloorImage-dialog')[0].removeAttribute('hidden');
+        _drawMode.mode = ControlModes.SetScale;
     });
     $('.close-toolbox-tools').click( function () {
         $('.toolbox-tools').attr('hidden', true);
@@ -158,7 +163,6 @@ function bindListeners () {
         initDrawLine();
     });
 
-    var wallType;
     $('.drawWalls').click( function () {
         controls.mouseButtons.ORBIT = -1;
         _drawMode.mode = ControlModes.DrawContinuePoly;
@@ -221,13 +225,6 @@ function bindListeners () {
         container.style.cursor = "crosshair";
         _drawMode.mode = ControlModes.MoveDevice;
     });
-    $('#originFloorImage').click(function () {
-        container.style.cursor = "crosshair";
-        _drawMode.mode = ControlModes.SetOrigin;
-    });
-    $('#scaleFloorImage').click(function () {
-        _drawMode.mode = ControlModes.SetScale;
-    });
     $('#deviceContainerClose').click(function () {
         $('.deviceMenu').attr('hidden', true);
     });
@@ -235,10 +232,6 @@ function bindListeners () {
         controls.mouseButtons.ORBIT = -1;
         container.style.cursor = "crosshair";
         _drawMode.mode = ControlModes.AddDevice;
-    });
-    $('.editDevice').click(function () {
-        controls.mouseButtons.ORBIT = -1;
-        _drawMode.mode = ControlModes.EditDevice;
     });
     $('.panSelect').click(function () {
         _drawMode.mode = ControlModes.PanSelect;
@@ -296,13 +289,16 @@ function render () {
     renderer.clear();
     renderer.render(scene, camera);
     renderer.clearDepth();
-    renderer.render(sceneVoxels, camera);
+    renderer.render(sceneVoxels, camera);  // Renders voxels on top of the map.
 }
 
 function update() {
     controls.target.z = 0;  // Lock camera control target to this altitude (but still allow x/y pan).
 }
 
+/*
+    function to draw the crossorigins at the axes
+ */
 function drawAxesHelper(length, altitude) {
     if (typeof scene.axes !== "undefined")
         scene.remove(scene.axes);
@@ -315,6 +311,9 @@ function drawAxesHelper(length, altitude) {
     scene.add(scene.axes);
 }
 
+/*
+    function to create elements for the add device dialog menu
+ */
 function createElement (tag, id, name, type, css) {
         var element = document.createElement(tag);
         element.id = id;
