@@ -17,7 +17,6 @@ var ControlModes = {
     'Select': 'select',
     PanSelect: 'panSelect'
 };
-
 var _tempScaleCube = [], selectDrawBox = false;
 var _tempScaleLine, _tempSelectLine, _tempSelectCubes = [], _undo = [];
 
@@ -92,12 +91,14 @@ function removeWall(floor) {
         floor.gridData.polys = [];
     }
 
+
     $.each(_tempCubes, function (i, cube) {
         scene.remove(cube);
     });
 
     scene.remove(_tempLine);
     scene.remove(_cursorVoxel);
+
     _tempCubes = [];
     _tempLine = undefined;
 }
@@ -537,6 +538,7 @@ function removeSelectedPoly() {
                 inP = checkBound(cube.position, tpLeft, btRight);
                 if (inP === false)break;
             }
+
             if (inP == true) {
                 scene.remove(polys[i].line);
                 $.each(polys[i].cubes, function (i, cube) {
@@ -612,6 +614,7 @@ function showSelectedPoly() {
             }
         }
     }
+
 
     $.each(selectedPolys, function (i, poly) {
         var index = polys.indexOf(poly);
@@ -718,6 +721,7 @@ function redrawLine() {
     if (_tempCubes.length > 0) {
         material.color = _tempCubes[0].material.color;
     }
+
 
     if (_drawMode.mode == ControlModes.DrawContinuePoly && typeof continueLinePoly !== "undefined") {
         _tempLine = continueLinePoly.line;
